@@ -13,13 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { ArrowUpRight, ArrowDownLeft, User, ChevronDown, CheckCircle, XCircle, RefreshCw } from "lucide-react"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { ArrowUpRight, ArrowDownLeft, ChevronDown, CheckCircle, XCircle, RefreshCw } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 // Mock data for initial transactions
@@ -50,7 +44,6 @@ export function VenmoInterface() {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [transactionStatus, setTransactionStatus] = useState<"success" | "failure" | null>(null)
   const [transactions, setTransactions] = useState(initialTransactions)
-  const [isTooltipOpen, setIsTooltipOpen] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date())
   const [errorMessage, setErrorMessage] = useState("")
 
@@ -152,23 +145,9 @@ export function VenmoInterface() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>Your Balance</CardTitle>
-          <TooltipProvider>
-            <Tooltip open={isTooltipOpen} onOpenChange={setIsTooltipOpen} delayDuration={200}>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="h-8 w-8 p-0"
-                  onClick={() => setIsTooltipOpen(!isTooltipOpen)}
-                >
-                  <User className="h-4 w-4" />
-                  <span className="sr-only">Show user name</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-white text-black border border-gray-200 shadow-md">
-                <p>{userName}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600">{userName}</span>
+          </div>
         </CardHeader>
         <CardContent>
           <p className="text-4xl font-bold">${balance.toFixed(2)}</p>
