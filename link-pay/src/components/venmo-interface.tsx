@@ -26,11 +26,11 @@ const initialTransactions = [
 ]
 
 const suggestedUsers = [
-  { value: "funnyBunny", label: "Funny Bunny" },
-  { value: "builderBeaver", label: "Builder Beaver" },
-  { value: "chargeMaster", label: "Charge Master" },
-  { value: "daringDolphin", label: "Daring Dolphin" },
-  { value: "exploringEagle", label: "Exploring Eagle" },
+  { value: "funnyBunny", label: "funnyBunny" },
+  { value: "builderBeaver", label: "builderBeaver" },
+  { value: "chargeMaster", label: "chargeMaster" },
+  { value: "daringDolphin", label: "daringDolphin" },
+  { value: "exploringEagle", label: "exploringEagle" },
 ]
 
 export function VenmoInterface() {
