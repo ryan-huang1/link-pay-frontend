@@ -18,19 +18,19 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 // Mock data for initial transactions
 const initialTransactions = [
-  { id: 1, type: "sent", amount: 50, to: "theRealAlice", date: "2023-04-15" },
-  { id: 2, type: "received", amount: 30, from: "BobTheBuilder", date: "2023-04-14" },
-  { id: 3, type: "sent", amount: 20, to: "CharlieInCharge", date: "2023-04-13" },
-  { id: 4, type: "received", amount: 40, from: "DaringDavid", date: "2023-04-12" },
-  { id: 5, type: "sent", amount: 15, to: "EveTheExplorer", date: "2023-04-11" },
+  { id: 1, type: "sent", amount: 50, to: "funnyBunny", date: "2023-04-15" },
+  { id: 2, type: "received", amount: 30, from: "builderBeaver", date: "2023-04-14" },
+  { id: 3, type: "sent", amount: 20, to: "chargeMaster", date: "2023-04-13" },
+  { id: 4, type: "received", amount: 40, from: "daringDolphin", date: "2023-04-12" },
+  { id: 5, type: "sent", amount: 15, to: "exploringEagle", date: "2023-04-11" },
 ]
 
 const suggestedUsers = [
-  { value: "theRealAlice", label: "theRealAlice" },
-  { value: "BobTheBuilder", label: "BobTheBuilder" },
-  { value: "CharlieInCharge", label: "CharlieInCharge" },
-  { value: "DaringDavid", label: "DaringDavid" },
-  { value: "EveTheExplorer", label: "EveTheExplorer" },
+  { value: "funnyBunny", label: "Funny Bunny" },
+  { value: "builderBeaver", label: "Builder Beaver" },
+  { value: "chargeMaster", label: "Charge Master" },
+  { value: "daringDolphin", label: "Daring Dolphin" },
+  { value: "exploringEagle", label: "Exploring Eagle" },
 ]
 
 export function VenmoInterface() {
