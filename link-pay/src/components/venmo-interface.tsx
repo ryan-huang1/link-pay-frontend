@@ -187,7 +187,7 @@ export function VenmoInterface() {
                     {filteredUsers.map((user) => (
                       <li
                         key={user.value}
-                        className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-black"
+                        className="px-3 py-3 text-sm hover:bg-gray-100 cursor-pointer text-black"
                         onClick={() => handleSelectUser(user)}
                       >
                         {user.label}
