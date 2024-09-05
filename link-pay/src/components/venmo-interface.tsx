@@ -18,19 +18,19 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 // Mock data for initial transactions
 const initialTransactions = [
-  { id: 1, type: "sent", amount: 50, to: "Alice", date: "2023-04-15" },
-  { id: 2, type: "received", amount: 30, from: "Bob", date: "2023-04-14" },
-  { id: 3, type: "sent", amount: 20, to: "Charlie", date: "2023-04-13" },
-  { id: 4, type: "received", amount: 40, from: "David", date: "2023-04-12" },
-  { id: 5, type: "sent", amount: 15, to: "Eve", date: "2023-04-11" },
+  { id: 1, type: "sent", amount: 50, to: "theRealAlice", date: "2023-04-15" },
+  { id: 2, type: "received", amount: 30, from: "BobTheBuilder", date: "2023-04-14" },
+  { id: 3, type: "sent", amount: 20, to: "CharlieInCharge", date: "2023-04-13" },
+  { id: 4, type: "received", amount: 40, from: "DaringDavid", date: "2023-04-12" },
+  { id: 5, type: "sent", amount: 15, to: "EveTheExplorer", date: "2023-04-11" },
 ]
 
 const suggestedUsers = [
-  { value: "alice", label: "Alice" },
-  { value: "bob", label: "Bob" },
-  { value: "charlie", label: "Charlie" },
-  { value: "david", label: "David" },
-  { value: "eve", label: "Eve" },
+  { value: "theRealAlice", label: "theRealAlice" },
+  { value: "BobTheBuilder", label: "BobTheBuilder" },
+  { value: "CharlieInCharge", label: "CharlieInCharge" },
+  { value: "DaringDavid", label: "DaringDavid" },
+  { value: "EveTheExplorer", label: "EveTheExplorer" },
 ]
 
 export function VenmoInterface() {
@@ -277,18 +277,18 @@ export function VenmoInterface() {
                     <ArrowDownLeft className="mr-2 mt-1 text-green-600 flex-shrink-0" />
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className={`font-medium break-words ${
+                    <p className={`font-medium break-words text-sm ${
                       transaction.type === "sent" ? "text-red-500" : "text-green-600"
                     }`}>
                       {transaction.type === "sent"
                         ? `Sent to ${transaction.to}`
                         : `Received from ${transaction.from}`}
                     </p>
-                    <p className="text-sm text-gray-500">{transaction.date}</p>
+                    <p className="text-sm text-gray-500 text-sm">{transaction.date}</p>
                   </div>
                 </div>
                 <p
-                  className={`font-medium whitespace-nowrap ${
+                  className={`font-medium whitespace-nowrap text-sm ${
                     transaction.type === "sent" ? "text-red-500" : "text-green-600"
                   }`}
                 >
