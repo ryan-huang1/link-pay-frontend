@@ -52,11 +52,21 @@ export function VenmoInterface() {
   const [transactions, setTransactions] = useState(initialTransactions)
   const [isTooltipOpen, setIsTooltipOpen] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date())
+  const [errorMessage, setErrorMessage] = useState("")
 
   const handleSendMoney = () => {
     if (amount && recipient) {
       const sendAmount = parseFloat(amount)
-      if (sendAmount > 0 && sendAmount <= balance) {
+      if (sendAmount < 0) {
+        setTransactionStatus("failure")
+        setErrorMessage("Transaction failed. Amount cannot be negative.")
+      } else if (sendAmount === 0) {
+        setTransactionStatus("failure")
+        setErrorMessage("Transaction failed. Amount must be greater than zero.")
+      } else if (sendAmount > balance) {
+        setTransactionStatus("failure")
+        setErrorMessage("Transaction failed. Insufficient balance.")
+      } else {
         setBalance(balance - sendAmount)
         setTransactionStatus("success")
         
@@ -75,9 +85,8 @@ export function VenmoInterface() {
           setAmount("")
           setRecipient("")
           setTransactionStatus(null)
+          setErrorMessage("")
         }, 2000)
-      } else {
-        setTransactionStatus("failure")
       }
     }
   }
@@ -89,11 +98,21 @@ export function VenmoInterface() {
         user.label.toLowerCase().includes(value.toLowerCase())
       )
     )
+    setTransactionStatus(null)
+    setErrorMessage("")
+  }
+
+  const handleAmountChange = (value: string) => {
+    setAmount(value)
+    setTransactionStatus(null)
+    setErrorMessage("")
   }
 
   const handleSelectUser = (user: { value: string; label: string }) => {
     setRecipient(user.label)
     setIsDropdownOpen(false)
+    setTransactionStatus(null)
+    setErrorMessage("")
   }
 
   const generateRandomPayment = () => {
@@ -207,7 +226,7 @@ export function VenmoInterface() {
                 id="amount"
                 type="number"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => handleAmountChange(e.target.value)}
                 className="col-span-3 text-black"
               />
             </div>
@@ -230,15 +249,15 @@ export function VenmoInterface() {
               <AlertDescription className={transactionStatus === "success" ? "text-green-700" : "text-red-700"}>
                 {transactionStatus === "success"
                   ? "Transaction completed successfully."
-                  : "Transaction failed. Insufficient balance."}
+                  : errorMessage}
               </AlertDescription>
             </Alert>
           )}
           <Button
             onClick={handleSendMoney}
-            disabled={transactionStatus !== null}
+            disabled={!amount || !recipient}
             className={`${
-              transactionStatus !== null
+              !amount || !recipient
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-primary text-primary-foreground hover:bg-primary/90"
             }`}
