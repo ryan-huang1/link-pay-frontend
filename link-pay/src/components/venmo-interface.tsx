@@ -250,7 +250,7 @@ export function VenmoInterface() {
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="mr-4">Transactions</CardTitle>
           <div className="flex items-center space-x-2">
-            <p className="text-sm text-gray-500">
+            <p className="text-xs text-gray-500">
               Last updated: {lastUpdated.toLocaleTimeString()}
             </p>
             <Button
