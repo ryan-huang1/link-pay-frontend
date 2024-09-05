@@ -44,7 +44,7 @@ export function VenmoInterface() {
   const [isOpen, setIsOpen] = useState(false)
   const [amount, setAmount] = useState("")
   const [recipient, setRecipient] = useState("")
-  const [userName] = useState("@president_link")
+  const [userName] = useState("@dictator_link")
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [filteredUsers, setFilteredUsers] = useState(suggestedUsers)
   const dropdownRef = useRef<HTMLDivElement>(null)
