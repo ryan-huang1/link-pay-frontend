@@ -33,7 +33,7 @@ const suggestedUsers = [
   { value: "exploringEagle", label: "exploringEagle" },
 ]
 
-export function VenmoInterface() {
+export function PaymentInterface() {
   const [balance, setBalance] = useState(500)
   const [isOpen, setIsOpen] = useState(false)
   const [amount, setAmount] = useState("")
