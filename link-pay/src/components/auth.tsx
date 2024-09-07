@@ -124,7 +124,7 @@ export default function Component() {
                         value={generatedUsername}
                         readOnly
                         placeholder="Click generate to get a username"
-                        className="flex-grow"
+                        className="flex-grow cursor-not-allowed"
                       />
                       <Button
                         type="button"
