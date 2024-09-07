@@ -16,12 +16,54 @@ export default function Component() {
   const togglePasswordVisibility = () => setShowPassword(!showPassword)
 
   const generateUsername = () => {
-    const adjectives = ["Happy", "Lucky", "Sunny", "Clever", "Swift", "Brave", "Calm"]
-    const nouns = ["Tiger", "Eagle", "Dolphin", "Fox", "Wolf", "Lion", "Bear"]
-    const randomNumber = Math.floor(Math.random() * 1000)
+    const adjectives = [
+      "Sparkling", "Lucky", "Glowing", "Clever", "Smooth", "Brave", "Airy", "Lively", "Mystic", "Stubborn",
+      "Playful", "Tough", "Dreamy", "Fleeting", "Eager", "Bubbly", "Moody", "Witty", "Hopeful", "Daring",
+      "Endless", "Joyful", "Silky", "Hazy", "Bright", "Twisty", "Magical", "Perfect", "Common", "Fiery",
+      "Fading", "Shiny", "Melodic", "Fizzy", "Cloudy", "Smart", "Light", "Secret", "Changing", "Musical",
+      "Hidden", "Swift", "Starry", "Ideal", "Radiant", "Angelic", "Shadowy", "Bouncy", "Cozy", "Snowy",
+      "Sunny", "Rainy", "Windy", "Icy", "Misty", "Foggy", "Frosty", "Breezy", "Stormy", "Chilly",
+      "Warm", "Hot", "Cool", "Mild", "Balmy", "Sticky", "Humid", "Dry", "Crisp", "Fresh",
+      "Sweet", "Sour", "Bitter", "Spicy", "Tangy", "Zesty", "Juicy", "Tasty", "Yummy", "Savory",
+      "Soft", "Hard", "Fluffy", "Fuzzy", "Woolly", "Furry", "Hairy", "Spiky", "Bumpy", "Lumpy",
+      "Slimy", "Gooey", "Sticky", "Slippery", "Rough", "Smooth", "Flat", "Round", "Square", "Pointy",
+      "Zigzag", "Curvy", "Wavy", "Crooked", "Straight", "Wobbly", "Wiggly", "Loopy", "Swirly", "Dotted",
+      "Striped", "Spotted", "Checkered", "Plaid", "Floral", "Paisley", "Solid", "Sheer", "Opaque", "Glossy",
+      "Matte", "Shimmery", "Glittery", "Pearly", "Rusty", "Faded", "Vibrant", "Neon", "Pastel", "Earthy",
+      "Metallic", "Wooden", "Plastic", "Rubber", "Leather", "Silky", "Velvety", "Lacy", "Knitted", "Woven",
+      "Braided", "Tangled", "Knotted", "Twisted", "Folded", "Crumpled", "Smooth", "Wrinkled", "Pleated", "Ruffled",
+      "Bouncy", "Jiggly", "Wiggly", "Wobbly", "Shaky", "Steady", "Stable", "Tipsy", "Tilted", "Lopsided",
+      "Balanced", "Centered", "Aligned", "Crooked", "Askew", "Symmetrical", "Asymmetrical", "Proportional", "Distorted", "Warped",
+      "Stretched", "Squished", "Inflated", "Deflated", "Expanded", "Compressed", "Hollow", "Solid", "Dense", "Airy",
+      "Porous", "Absorbent", "Repellent", "Magnetic", "Electric", "Solar", "Lunar", "Cosmic", "Earthly", "Heavenly",
+      "Divine", "Mortal", "Eternal", "Ephemeral", "Ancient", "Modern", "Futuristic", "Retro", "Vintage", "Timeless"
+  ];
+  
+  const nouns = [
+      "Dragon", "Eagle", "Whale", "Tiger", "Wolf", "Snake", "Horse", "Bull", "Shark", "Lion",
+      "Giant", "Owl", "Hound", "Ghost", "Fairy", "Spirit", "Statue", "Mermaid", "Monster", "Unicorn",
+      "Genie", "Cobra", "Fox", "Yeti", "Falcon", "Serpent", "Bird", "Warrior", "Mammoth", "Rabbit",
+      "Seal", "Pony", "Vampire", "Rooster", "Lizard", "Cat", "Raven", "Parrot", "Witch", "Hawk",
+      "Devil", "Elf", "Zombie", "Troll", "Demon", "Pixie", "Giant", "Mermaid", "Goblin", "Nymph",
+      "Bear", "Deer", "Moose", "Elk", "Bison", "Goat", "Sheep", "Cow", "Pig", "Dog",
+      "Dolphin", "Whale", "Shark", "Fish", "Crab", "Lobster", "Shrimp", "Octopus", "Squid", "Jellyfish",
+      "Ant", "Bee", "Wasp", "Fly", "Moth", "Butterfly", "Spider", "Scorpion", "Centipede", "Millipede",
+      "Tree", "Flower", "Bush", "Grass", "Moss", "Fern", "Vine", "Cactus", "Palm", "Pine",
+      "Rock", "Mountain", "Hill", "Valley", "Canyon", "Cave", "River", "Lake", "Ocean", "Island",
+      "Book", "Pen", "Pencil", "Brush", "Canvas", "Easel", "Palette", "Violin", "Piano", "Drum",
+      "Guitar", "Flute", "Trumpet", "Harp", "Banjo", "Saxophone", "Clarinet", "Trombone", "Harmonica", "Accordion",
+      "Camera", "Phone", "Computer", "Tablet", "Watch", "Clock", "Compass", "Map", "Globe", "Atlas",
+      "Telescope", "Microscope", "Binoculars", "Magnifier", "Prism", "Mirror", "Lens", "Filter", "Projector", "Screen",
+      "Chair", "Table", "Desk", "Bed", "Couch", "Shelf", "Cabinet", "Dresser", "Wardrobe", "Closet",
+      "Lamp", "Candle", "Lantern", "Torch", "Flashlight", "Beacon", "Spotlight", "Chandelier", "Sconce", "Nightlight",
+      "Plate", "Bowl", "Cup", "Mug", "Glass", "Spoon", "Fork", "Knife", "Chopsticks", "Straw",
+      "Pot", "Pan", "Kettle", "Oven", "Stove", "Fridge", "Freezer", "Toaster", "Blender", "Mixer",
+      "Shirt", "Pants", "Dress", "Skirt", "Jacket", "Coat", "Sweater", "Socks", "Shoes", "Boots",
+      "Hat", "Cap", "Scarf", "Gloves", "Mittens", "Belt", "Tie", "Bowtie", "Necklace", "Bracelet"
+  ];
     const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)]
     const randomNoun = nouns[Math.floor(Math.random() * nouns.length)]
-    setGeneratedUsername(`${randomAdj}${randomNoun}${randomNumber}`)
+    setGeneratedUsername(`${randomAdj}${randomNoun}`)
   }
 
   return (
