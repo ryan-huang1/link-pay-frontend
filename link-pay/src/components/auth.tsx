@@ -1,19 +1,23 @@
 "use client"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { EyeIcon, EyeOffIcon, RefreshCwIcon } from "lucide-react"
+import React, { useState, FormEvent, ChangeEvent } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EyeIcon, EyeOffIcon, RefreshCwIcon } from "lucide-react";
+import { setCookie, getCookie } from 'cookies-next';
 
 export default function Component() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [activeTab, setActiveTab] = useState("login")
-  const [generatedUsername, setGeneratedUsername] = useState("")
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>("login");
+  const [generatedUsername, setGeneratedUsername] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
-  const togglePasswordVisibility = () => setShowPassword(!showPassword)
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
   const generateUsername = () => {
     const adjectives = [
@@ -37,9 +41,9 @@ export default function Component() {
       "Stretched", "Squished", "Inflated", "Deflated", "Expanded", "Compressed", "Hollow", "Solid", "Dense", "Airy",
       "Porous", "Absorbent", "Repellent", "Magnetic", "Electric", "Solar", "Lunar", "Cosmic", "Earthly", "Heavenly",
       "Divine", "Mortal", "Eternal", "Ephemeral", "Ancient", "Modern", "Futuristic", "Retro", "Vintage", "Timeless"
-  ];
+    ];
   
-  const nouns = [
+    const nouns = [
       "Dragon", "Eagle", "Whale", "Tiger", "Wolf", "Snake", "Horse", "Bull", "Shark", "Lion",
       "Giant", "Owl", "Hound", "Ghost", "Fairy", "Spirit", "Statue", "Mermaid", "Monster", "Unicorn",
       "Genie", "Cobra", "Fox", "Yeti", "Falcon", "Serpent", "Bird", "Warrior", "Mammoth", "Rabbit",
@@ -60,11 +64,57 @@ export default function Component() {
       "Pot", "Pan", "Kettle", "Oven", "Stove", "Fridge", "Freezer", "Toaster", "Blender", "Mixer",
       "Shirt", "Pants", "Dress", "Skirt", "Jacket", "Coat", "Sweater", "Socks", "Shoes", "Boots",
       "Hat", "Cap", "Scarf", "Gloves", "Mittens", "Belt", "Tie", "Bowtie", "Necklace", "Bracelet"
-  ];
-    const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)]
-    const randomNoun = nouns[Math.floor(Math.random() * nouns.length)]
-    setGeneratedUsername(`${randomAdj}${randomNoun}`)
-  }
+    ];
+
+    const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+    setGeneratedUsername(`${randomAdj}${randomNoun}`);
+  };
+
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Login failed');
+      }
+
+      const data = await response.json();
+      
+      // Override any existing token
+      setCookie('token', data.token, { maxAge: 3600, path: '/' }); // Expires in 1 hour
+
+      // Override other data if needed
+      setCookie('user_id', data.user_id.toString(), { maxAge: 3600, path: '/' });
+      setCookie('is_admin', data.is_admin.toString(), { maxAge: 3600, path: '/' });
+
+      console.log('Login successful');
+
+      // Redirect based on admin status
+      if (data.is_admin) {
+        window.location.href = 'https://youtube.com';
+      } else {
+        window.location.href = 'https://google.com';
+      }
+    } catch (error) {
+      setError('Login failed. Please check your credentials and try again.');
+    }
+  };
+
+  const handleRegister = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // Implement registration logic here
+    console.log('Registration not implemented yet');
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -80,11 +130,17 @@ export default function Component() {
               <TabsTrigger value="register">Create Account</TabsTrigger>
             </TabsList>
             <TabsContent value="login">
-              <form>
+              <form onSubmit={handleLogin}>
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="username">Username</Label>
-                    <Input id="username" placeholder="johndoe123" required />
+                    <Input
+                      id="username"
+                      placeholder="johndoe123"
+                      required
+                      value={username}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
@@ -93,6 +149,8 @@ export default function Component() {
                         id="password"
                         type={showPassword ? "text" : "password"}
                         required
+                        value={password}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                       />
                       <Button
                         type="button"
@@ -110,11 +168,15 @@ export default function Component() {
                       </Button>
                     </div>
                   </div>
+                  {error && <p className="text-red-500 text-sm">{error}</p>}
                 </div>
+                <CardFooter className="px-0 pt-4">
+                  <Button type="submit" className="w-full">Login</Button>
+                </CardFooter>
               </form>
             </TabsContent>
             <TabsContent value="register">
-              <form>
+              <form onSubmit={handleRegister}>
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="register-username">Generated Username</Label>
@@ -143,6 +205,8 @@ export default function Component() {
                         id="register-password"
                         type={showPassword ? "text" : "password"}
                         required
+                        value={password}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                       />
                       <Button
                         type="button"
@@ -161,14 +225,14 @@ export default function Component() {
                     </div>
                   </div>
                 </div>
+                <CardFooter className="px-0 pt-4">
+                  <Button type="submit" className="w-full">Create Account</Button>
+                </CardFooter>
               </form>
             </TabsContent>
           </Tabs>
         </CardContent>
-        <CardFooter>
-          <Button className="w-full">{activeTab === "login" ? "Login" : "Create Account"}</Button>
-        </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
