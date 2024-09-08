@@ -127,8 +127,24 @@ export function PaymentInterface() {
 
   useEffect(() => {
     refreshData();
-  }, [refreshData]);
 
+    // Set up interval to refresh usernames every minute
+    const usernameRefreshInterval = setInterval(() => {
+      fetchUsernames();
+    }, 60000); // 60000 ms = 1 minute
+
+    // Set up interval to refresh transactions every 20 seconds
+    const transactionRefreshInterval = setInterval(() => {
+      fetchTransactions();
+    }, 20000); // 20000 ms = 20 seconds
+
+    // Clean up intervals on component unmount
+    return () => {
+      clearInterval(usernameRefreshInterval);
+      clearInterval(transactionRefreshInterval);
+    };
+  }, [refreshData, fetchTransactions]);
+  
   const handleSendMoney = async () => {
     if (amount && recipient && description) {
       try {
