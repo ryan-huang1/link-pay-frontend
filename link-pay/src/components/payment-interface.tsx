@@ -1,144 +1,201 @@
 "use client"
-
-import { useState, useEffect, useRef } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import React, { useState, useEffect, useRef } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { ArrowUpRight, ArrowDownLeft, ChevronDown, CheckCircle, XCircle, RefreshCw } from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ArrowUpRight, ArrowDownLeft, ChevronDown, CheckCircle, XCircle, RefreshCw } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+type TransactionStatus = "success" | "failure" | null;
+type TransactionType = "sent" | "received";
+
+interface Transaction {
+  id: number;
+  type: TransactionType;
+  amount: number;
+  to?: string;
+  from?: string;
+  date: string;
+}
+
+interface User {
+  value: string;
+  label: string;
+}
 
 // Mock data for initial transactions
-const initialTransactions = [
+const initialTransactions: Transaction[] = [
   { id: 1, type: "sent", amount: 50, to: "funnyBunny", date: "2023-04-15" },
   { id: 2, type: "received", amount: 30, from: "builderBeaver", date: "2023-04-14" },
   { id: 3, type: "sent", amount: 20, to: "chargeMaster", date: "2023-04-13" },
   { id: 4, type: "received", amount: 40, from: "daringDolphin", date: "2023-04-12" },
   { id: 5, type: "sent", amount: 15, to: "exploringEagle", date: "2023-04-11" },
-]
+];
 
-const suggestedUsers = [
+const suggestedUsers: User[] = [
   { value: "funnyBunny", label: "funnyBunny" },
   { value: "builderBeaver", label: "builderBeaver" },
   { value: "chargeMaster", label: "chargeMaster" },
   { value: "daringDolphin", label: "daringDolphin" },
   { value: "exploringEagle", label: "exploringEagle" },
-]
+];
 
 export function PaymentInterface() {
-  const [balance, setBalance] = useState(500)
-  const [isOpen, setIsOpen] = useState(false)
-  const [amount, setAmount] = useState("")
-  const [recipient, setRecipient] = useState("")
-  const [userName] = useState("@dictator_link")
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [filteredUsers, setFilteredUsers] = useState(suggestedUsers)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-  const [transactionStatus, setTransactionStatus] = useState<"success" | "failure" | null>(null)
-  const [transactions, setTransactions] = useState(initialTransactions)
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date())
-  const [errorMessage, setErrorMessage] = useState("")
+  const [balance, setBalance] = useState<number>(0);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [amount, setAmount] = useState<string>("");
+  const [recipient, setRecipient] = useState<string>("");
+  const [userName, setUserName] = useState<string>("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>(suggestedUsers);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('http://127.0.0.1:5000/user/profile', {
+          headers: {
+            'Authorization': `Bearer ${getCookie('token')}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch user profile');
+        }
+        const data = await response.json();
+        setBalance(data.balance);
+        setUserName(data.username);
+      } catch (error) {
+        setError('Failed to load user profile');
+        console.error('Error fetching user profile:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+  const getCookie = (name: string): string | undefined => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift();
+  };
 
   const handleSendMoney = () => {
     if (amount && recipient) {
-      const sendAmount = parseFloat(amount)
+      const sendAmount = parseFloat(amount);
       if (sendAmount < 0) {
-        setTransactionStatus("failure")
-        setErrorMessage("Transaction failed. Amount cannot be negative.")
+        setTransactionStatus("failure");
+        setErrorMessage("Transaction failed. Amount cannot be negative.");
       } else if (sendAmount === 0) {
-        setTransactionStatus("failure")
-        setErrorMessage("Transaction failed. Amount must be greater than zero.")
+        setTransactionStatus("failure");
+        setErrorMessage("Transaction failed. Amount must be greater than zero.");
       } else if (sendAmount > balance) {
-        setTransactionStatus("failure")
-        setErrorMessage("Transaction failed. Insufficient balance.")
+        setTransactionStatus("failure");
+        setErrorMessage("Transaction failed. Insufficient balance.");
       } else {
-        setBalance(balance - sendAmount)
-        setTransactionStatus("success")
+        setBalance(balance - sendAmount);
+        setTransactionStatus("success");
         
-        // Add the new transaction to the history
-        const newTransaction = {
+        const newTransaction: Transaction = {
           id: transactions.length + 1,
           type: "sent",
           amount: sendAmount,
           to: recipient,
-          date: new Date().toISOString().split('T')[0] // Current date in YYYY-MM-DD format
-        }
-        setTransactions([newTransaction, ...transactions])
+          date: new Date().toISOString().split('T')[0]
+        };
+        setTransactions([newTransaction, ...transactions]);
 
         setTimeout(() => {
-          setIsOpen(false)
-          setAmount("")
-          setRecipient("")
-          setTransactionStatus(null)
-          setErrorMessage("")
-        }, 2000)
+          setIsOpen(false);
+          setAmount("");
+          setRecipient("");
+          setTransactionStatus(null);
+          setErrorMessage("");
+        }, 2000);
       }
     }
-  }
+  };
 
   const handleRecipientChange = (value: string) => {
-    setRecipient(value)
+    setRecipient(value);
     setFilteredUsers(
       suggestedUsers.filter((user) =>
         user.label.toLowerCase().includes(value.toLowerCase())
       )
-    )
-    setTransactionStatus(null)
-    setErrorMessage("")
-  }
+    );
+    setTransactionStatus(null);
+    setErrorMessage("");
+  };
 
   const handleAmountChange = (value: string) => {
-    setAmount(value)
-    setTransactionStatus(null)
-    setErrorMessage("")
-  }
+    setAmount(value);
+    setTransactionStatus(null);
+    setErrorMessage("");
+  };
 
-  const handleSelectUser = (user: { value: string; label: string }) => {
-    setRecipient(user.label)
-    setIsDropdownOpen(false)
-    setTransactionStatus(null)
-    setErrorMessage("")
-  }
+  const handleSelectUser = (user: User) => {
+    setRecipient(user.label);
+    setIsDropdownOpen(false);
+    setTransactionStatus(null);
+    setErrorMessage("");
+  };
 
-  const generateRandomPayment = () => {
-    const randomAmount = Math.floor(Math.random() * 100) + 1 // Random amount between 1 and 100
-    const randomUser = suggestedUsers[Math.floor(Math.random() * suggestedUsers.length)]
+  const generateRandomPayment = (): Transaction => {
+    const randomAmount = Math.floor(Math.random() * 100) + 1;
+    const randomUser = suggestedUsers[Math.floor(Math.random() * suggestedUsers.length)];
     return {
       id: transactions.length + 1,
       type: "received",
       amount: randomAmount,
       from: randomUser.label,
       date: new Date().toISOString().split('T')[0]
-    }
-  }
+    };
+  };
 
   const refreshTransactions = () => {
-    const newPayment = generateRandomPayment()
-    setTransactions([newPayment, ...transactions])
-    setBalance(balance + newPayment.amount)
-    setLastUpdated(new Date())
-  }
+    const newPayment = generateRandomPayment();
+    setTransactions([newPayment, ...transactions]);
+    setBalance(balance + newPayment.amount);
+    setLastUpdated(new Date());
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false)
+        setIsDropdownOpen(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="max-w-md mx-auto p-4 space-y-4">
@@ -146,7 +203,7 @@ export function PaymentInterface() {
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>Your Balance</CardTitle>
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">{userName}</span>
+            <span className="text-sm text-gray-600">@{userName}</span>
           </div>
         </CardHeader>
         <CardContent>
@@ -301,5 +358,5 @@ export function PaymentInterface() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
