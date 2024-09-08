@@ -144,11 +144,11 @@ export function PaymentInterface() {
       clearInterval(transactionRefreshInterval);
     };
   }, [refreshData, fetchTransactions]);
-  
+
   const handleSendMoney = async () => {
     if (amount && recipient && description) {
       try {
-        const response = await fetch('http://127.0.0.1:5000/transactions/create', {
+        const response = await fetch('http://127.0.0.1:5000/transaction/create', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
