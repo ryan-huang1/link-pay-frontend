@@ -32,14 +32,6 @@ interface User {
   label: string;
 }
 
-const suggestedUsers: User[] = [
-  { value: "funnyBunny", label: "funnyBunny" },
-  { value: "builderBeaver", label: "builderBeaver" },
-  { value: "chargeMaster", label: "chargeMaster" },
-  { value: "daringDolphin", label: "daringDolphin" },
-  { value: "exploringEagle", label: "exploringEagle" },
-];
-
 export function PaymentInterface() {
   const [balance, setBalance] = useState<number>(0);
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -48,7 +40,6 @@ export function PaymentInterface() {
   const [description, setDescription] = useState<string>("");
   const [userName, setUserName] = useState<string>("");
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>(suggestedUsers);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -58,6 +49,14 @@ export function PaymentInterface() {
   const [error, setError] = useState<string>("");
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const refreshIconRef = useRef<SVGSVGElement>(null);
+  const [availableUsernames, setAvailableUsernames] = useState<string[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+
+  const getCookie = (name: string): string | undefined => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift();
+  };
 
   const fetchUserProfile = async () => {
     try {
@@ -101,21 +100,34 @@ export function PaymentInterface() {
     }
   }, []);
 
+  const fetchUsernames = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5000/user/usernames', {
+        headers: {
+          'Authorization': `Bearer ${getCookie('token')}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch usernames');
+      }
+      const data = await response.json();
+      setAvailableUsernames(data.usernames);
+      // Initialize filteredUsers with all available usernames
+      setFilteredUsers(data.usernames.map((username: string) => ({ value: username, label: username })));
+    } catch (error) {
+      console.error('Error fetching usernames:', error);
+    }
+  };
+
   const refreshData = useCallback(async () => {
     setIsLoading(true);
-    await Promise.all([fetchUserProfile(), fetchTransactions()]);
+    await Promise.all([fetchUserProfile(), fetchTransactions(), fetchUsernames()]);
     setIsLoading(false);
   }, [fetchTransactions]);
 
   useEffect(() => {
     refreshData();
   }, [refreshData]);
-
-  const getCookie = (name: string): string | undefined => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift();
-  };
 
   const handleSendMoney = async () => {
     if (amount && recipient && description) {
@@ -162,15 +174,14 @@ export function PaymentInterface() {
 
   const handleRecipientChange = (value: string) => {
     setRecipient(value);
-    setFilteredUsers(
-      suggestedUsers.filter((user) =>
-        user.label.toLowerCase().includes(value.toLowerCase())
-      )
+    const filtered = availableUsernames.filter(username => 
+      username.toLowerCase().includes(value.toLowerCase())
     );
+    setFilteredUsers(filtered.map(username => ({ value: username, label: username })));
+    setIsDropdownOpen(true);  // Ensure dropdown opens when typing
     setTransactionStatus(null);
     setErrorMessage("");
   };
-
   const handleAmountChange = (value: string) => {
     setAmount(value);
     setTransactionStatus(null);
@@ -248,40 +259,40 @@ export function PaymentInterface() {
             <DialogTitle className="text-black">Send Money</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="recipient" className="text-right text-black">
-                To
-              </Label>
-              <div className="col-span-3 relative" ref={dropdownRef}>
-                <div className="flex items-center">
-                  <Input
-                    id="recipient"
-                    value={recipient}
-                    onChange={(e) => handleRecipientChange(e.target.value)}
-                    onFocus={() => setIsDropdownOpen(true)}
-                    className="pr-8 text-black"
-                    placeholder="Type or select user"
-                  />
-                  <ChevronDown
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  />
-                </div>
-                {isDropdownOpen && (
-                  <ul className="absolute z-50 w-full bg-white border border-gray-200 rounded-md mt-1 max-h-60 overflow-auto">
-                    {filteredUsers.map((user) => (
-                      <li
-                        key={user.value}
-                        className="px-3 py-3 text-sm hover:bg-gray-100 cursor-pointer text-black"
-                        onClick={() => handleSelectUser(user)}
-                      >
-                        {user.label}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="recipient" className="text-right text-black">
+              To
+            </Label>
+            <div className="col-span-3 relative" ref={dropdownRef}>
+              <div className="flex items-center">
+                <Input
+                  id="recipient"
+                  value={recipient}
+                  onChange={(e) => handleRecipientChange(e.target.value)}
+                  onFocus={() => setIsDropdownOpen(true)}
+                  className="pr-8 text-black"
+                  placeholder="Type or select user"
+                />
+                <ChevronDown
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                />
               </div>
+              {isDropdownOpen && (
+                <ul className="absolute z-50 w-full bg-white border border-gray-200 rounded-md mt-1 max-h-60 overflow-auto">
+                  {filteredUsers.map((user) => (
+                    <li
+                      key={user.value}
+                      className="px-3 py-3 text-sm hover:bg-gray-100 cursor-pointer text-black"
+                      onClick={() => handleSelectUser(user)}
+                    >
+                      {user.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
+          </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="amount" className="text-right text-black">
                 Amount
@@ -344,105 +355,105 @@ export function PaymentInterface() {
       </Dialog>
 
       <Card>
-  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-    <CardTitle className="mr-4">Transactions</CardTitle>
-    <div className="flex items-center space-x-2">
-      <p className="text-xs text-gray-500">
-        Last updated: {lastUpdated ? lastUpdated.toLocaleString() : 'Never'}
-      </p>
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={handleRefreshClick}
-        className="h-8 w-8"
-        disabled={isRefreshing}
-      >
-        <RefreshCw className="h-4 w-4" ref={refreshIconRef} />
-      </Button>
-    </div>
-  </CardHeader>
-  <CardContent>
-    <ScrollArea className="h-[250px]">
-      {transactions.length === 0 ? (
-        <div className="text-center py-4">
-          <p className="text-gray-500">No transactions yet.</p>
-          <p className="text-gray-500">Send some money to get started!</p>
-        </div>
-      ) : (
-        transactions.map((transaction) => (
-          <div
-            key={transaction.transaction_id}
-            className="flex items-start justify-between py-2 border-b last:border-b-0"
-          >
-            <div className="flex items-start flex-1 pr-4">
-              {transaction.type === 'sent' ? (
-                <ArrowUpRight className="mr-2 mt-1 text-red-500 flex-shrink-0" />
-              ) : (
-                <ArrowDownLeft className="mr-2 mt-1 text-green-600 flex-shrink-0" />
-              )}
-              <div className="min-w-0 flex-1">
-                <p className={`font-medium break-words text-sm ${
-                  transaction.type === 'sent' ? "text-red-500" : "text-green-600"
-                }`}>
-                  {transaction.type === 'sent'
-                    ? `Sent to ${transaction.counterparty}`
-                    : `Received from ${transaction.counterparty}`}
-                </p>
-                <p className="text-sm text-gray-500">{transaction.description}</p>
-                <p className="text-sm text-gray-500">{new Date(transaction.timestamp).toLocaleString()}</p>
-              </div>
-            </div>
-            <p
-              className={`font-medium whitespace-nowrap text-sm ${
-                transaction.type === 'sent' ? "text-red-500" : "text-green-600"
-              }`}
-            >
-              {transaction.type === 'sent' ? "-" : "+"}$
-              {transaction.amount.toFixed(2)}
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="mr-4">Transactions</CardTitle>
+          <div className="flex items-center space-x-2">
+            <p className="text-xs text-gray-500">
+              Last updated: {lastUpdated ? lastUpdated.toLocaleString() : 'Never'}
             </p>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleRefreshClick}
+              className="h-8 w-8"
+              disabled={isRefreshing}
+            >
+              <RefreshCw className="h-4 w-4" ref={refreshIconRef} />
+            </Button>
           </div>
-        ))
-      )}
-    </ScrollArea>
-  </CardContent>
-</Card>
-<style jsx global>{`
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-[250px]">
+            {transactions.length === 0 ? (
+              <div className="text-center py-4">
+                <p className="text-gray-500">No transactions yet.</p>
+                <p className="text-gray-500">Send some money to get started!</p>
+              </div>
+            ) : (
+              transactions.map((transaction) => (
+                <div
+                  key={transaction.transaction_id}
+                  className="flex items-start justify-between py-2 border-b last:border-b-0"
+                >
+                  <div className="flex items-start flex-1 pr-4">
+                    {transaction.type === 'sent' ? (
+                      <ArrowUpRight className="mr-2 mt-1 text-red-500 flex-shrink-0" />
+                    ) : (
+                      <ArrowDownLeft className="mr-2 mt-1 text-green-600 flex-shrink-0" />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className={`font-medium break-words text-sm ${
+                        transaction.type === 'sent' ? "text-red-500" : "text-green-600"
+                      }`}>
+                        {transaction.type === 'sent'
+                          ? `Sent to ${transaction.counterparty}`
+                          : `Received from ${transaction.counterparty}`}
+                      </p>
+                      <p className="text-sm text-gray-500">{transaction.description}</p>
+                      <p className="text-sm text-gray-500">{new Date(transaction.timestamp).toLocaleString()}</p>
+                    </div>
+                  </div>
+                  <p
+                    className={`font-medium whitespace-nowrap text-sm ${
+                      transaction.type === 'sent' ? "text-red-500" : "text-green-600"
+                    }`}
+                  >
+                    {transaction.type === 'sent' ? "-" : "+"}$
+                    {transaction.amount.toFixed(2)}
+                  </p>
+                </div>
+              ))
+            )}
+          </ScrollArea>
+        </CardContent>
+      </Card>
+      <style jsx global>{`
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
 
-  @keyframes spin-back {
-    from {
-      transform: rotate(360deg);
-    }
-    to {
-      transform: rotate(0deg);
-    }
-  }
+        @keyframes spin-back {
+          from {
+            transform: rotate(360deg);
+          }
+          to {
+            transform: rotate(0deg);
+          }
+        }
 
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
 
-  @keyframes spin-back {
-    0% {
-      transform: rotate(360deg);
-    }
-    100% {
-      transform: rotate(0deg);
-    }
-  }
-`}</style>
-</div>
-);
+        @keyframes spin-back {
+          0% {
+            transform: rotate(360deg);
+          }
+          100% {
+            transform: rotate(0deg);
+          }
+        }
+      `}</style>
+    </div>
+  );
 }
