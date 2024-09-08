@@ -90,30 +90,50 @@ export default function Component() {
 
       const data = await response.json();
       
-      // Override any existing token
       setCookie('token', data.token, { maxAge: 3600, path: '/' }); // Expires in 1 hour
-
-      // Override other data if needed
       setCookie('user_id', data.user_id.toString(), { maxAge: 3600, path: '/' });
       setCookie('is_admin', data.is_admin.toString(), { maxAge: 3600, path: '/' });
 
       console.log('Login successful');
-
-      // Redirect based on admin status
-      if (data.is_admin) {
-        window.location.href = 'https://youtube.com';
-      } else {
-        window.location.href = 'https://google.com';
-      }
+      window.location.href = 'https://google.com'; // Redirect to user route
     } catch (error) {
       setError('Login failed. Please check your credentials and try again.');
     }
   };
 
-  const handleRegister = (e: FormEvent<HTMLFormElement>) => {
+  const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Implement registration logic here
-    console.log('Registration not implemented yet');
+    setError("");
+
+    if (!generatedUsername) {
+      setError("Please generate a username first.");
+      return;
+    }
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: generatedUsername, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Registration failed');
+      }
+
+      const data = await response.json();
+      
+      setCookie('token', data.token, { maxAge: 3600, path: '/' }); // Expires in 1 hour
+      setCookie('user_id', data.user_id.toString(), { maxAge: 3600, path: '/' });
+      setCookie('is_admin', 'false', { maxAge: 3600, path: '/' }); // New users are not admins
+
+      console.log('Registration successful');
+      window.location.href = 'https://google.com'; // Redirect to user route
+    } catch (error) {
+      setError('Registration failed. Please try again.');
+    }
   };
 
   return (
@@ -224,6 +244,7 @@ export default function Component() {
                       </Button>
                     </div>
                   </div>
+                  {error && <p className="text-red-500 text-sm">{error}</p>}
                 </div>
                 <CardFooter className="px-0 pt-4">
                   <Button type="submit" className="w-full">Create Account</Button>
