@@ -18,6 +18,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 type TransactionStatus = "success" | "failure" | null;
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://127.0.0.1:5000';
+
 interface Transaction {
   transaction_id: number;
   type: 'sent' | 'received';
@@ -60,7 +62,7 @@ export function PaymentInterface() {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/user/profile', {
+      const response = await fetch(`${BASE_URL}/user/profile`, {
         headers: {
           'Authorization': `Bearer ${getCookie('token')}`,
         },
@@ -80,7 +82,7 @@ export function PaymentInterface() {
   const fetchTransactions = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      const response = await fetch('http://127.0.0.1:5000/transaction/history', {
+      const response = await fetch(`${BASE_URL}/transaction/history`, {
         headers: {
           'Authorization': `Bearer ${getCookie('token')}`,
         },
@@ -102,7 +104,7 @@ export function PaymentInterface() {
 
   const fetchUsernames = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/user/usernames', {
+      const response = await fetch(`${BASE_URL}/user/usernames`, {
         headers: {
           'Authorization': `Bearer ${getCookie('token')}`,
         },
@@ -148,7 +150,7 @@ export function PaymentInterface() {
   const handleSendMoney = async () => {
     if (amount && recipient && description) {
       try {
-        const response = await fetch('http://127.0.0.1:5000/transaction/create', {
+        const response = await fetch(`${BASE_URL}/transaction/create`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

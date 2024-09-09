@@ -16,6 +16,7 @@ export default function Component() {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://127.0.0.1:5000';
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
@@ -76,7 +77,7 @@ export default function Component() {
     setError("");
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/auth/login', {
+      const response = await fetch(`${BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -96,9 +97,9 @@ export default function Component() {
 
       console.log('Login successful');
       if (data.is_admin) {
-        window.location.href = 'https://youtube.com'; // Redirect admin to YouTube
+        window.location.href = 'http://localhost:3000/admin'; // Redirect admin to YouTube
       } else {
-        window.location.href = 'https://google.com'; // Redirect regular user to Google
+        window.location.href = 'http://localhost:3000/profile'; // Redirect regular user to Google
       }
     } catch (error) {
       setError('Login failed. Please check your credentials and try again.');
@@ -115,7 +116,7 @@ export default function Component() {
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/auth/register', {
+      const response = await fetch(`${BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
