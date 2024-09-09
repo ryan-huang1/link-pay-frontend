@@ -18,8 +18,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { format } from "date-fns"
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://127.0.0.1:5000';
-
 // Mock data
 const initialUsers = [
   { id: 1, username: "alice_j", businessName: "Alice's Accessories", balance: 1250.75 },
@@ -90,7 +88,7 @@ export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("users")
   const [users, setUsers] = useState(initialUsers)
   const [transactions, setTransactions] = useState(initialTransactions)
-  const [logs, setLogs] = useState(initialLogs)
+  const [logs] = useState(initialLogs)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [adjustmentAmount, setAdjustmentAmount] = useState("")
 

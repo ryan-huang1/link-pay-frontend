@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EyeIcon, EyeOffIcon, RefreshCwIcon } from "lucide-react";
-import { setCookie, getCookie } from 'cookies-next';
+import { setCookie } from 'cookies-next';
 
 export default function Component() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
