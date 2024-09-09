@@ -196,7 +196,7 @@ export function PaymentInterface() {
         setDescription("");
         setTransactionStatus(null);
         setErrorMessage("");
-      }, 2000);
+      }, 1000);
     }
   };
 
