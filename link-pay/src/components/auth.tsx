@@ -97,9 +97,9 @@ export default function Component() {
 
       console.log('Login successful');
       if (data.is_admin) {
-        window.location.href = 'http://localhost:3000/admin'; // Redirect admin to YouTube
+        window.location.href = 'https://bank.ryanhuang.xyz/admin'; // Redirect admin to YouTube
       } else {
-        window.location.href = 'http://localhost:3000/profile'; // Redirect regular user to Google
+        window.location.href = 'https://bank.ryanhuang.xyz/profile'; // Redirect regular user to Google
       }
     } catch (error) {
       setError('Login failed. Please check your credentials and try again.');
@@ -135,7 +135,7 @@ export default function Component() {
       setCookie('is_admin', 'false', { maxAge: 3600, path: '/' }); // New users are not admins
 
       console.log('Registration successful');
-      window.location.href = 'https://google.com'; // Redirect to user route
+      window.location.href = 'https://bank.ryanhuang.xyz/profile'; // Redirect to user route
     } catch (error) {
       setError('Registration failed. Please try again.');
     }
