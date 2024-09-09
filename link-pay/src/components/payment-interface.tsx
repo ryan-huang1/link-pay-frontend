@@ -19,7 +19,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 type TransactionStatus = "success" | "failure" | null;
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://127.0.0.1:5000';
-console.log('BASE_URL:', BASE_URL); // Add this for debugging
 
 interface Transaction {
   transaction_id: number;
@@ -54,16 +53,12 @@ export function PaymentInterface() {
   const refreshIconRef = useRef<SVGSVGElement>(null);
   const [availableUsernames, setAvailableUsernames] = useState<string[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
 
   const getCookie = (name: string): string | undefined => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop()?.split(';').shift();
   };
-
-  const token = getCookie('token');
-  console.log('Token:', token); // Add this for debugging
 
   const fetchUserProfile = async () => {
     try {
@@ -81,7 +76,6 @@ export function PaymentInterface() {
     } catch (error) {
       setError('Failed to load user profile');
       console.error('Error fetching user profile:', error);
-      // Consider adding a retry mechanism or user notification here
     }
   };
 
@@ -101,7 +95,6 @@ export function PaymentInterface() {
       setLastUpdated(new Date());
     } catch (error) {
       console.error('Error fetching transactions:', error);
-      // Consider adding a retry mechanism or user notification here
     } finally {
       setTimeout(() => {
         setIsRefreshing(false);
@@ -109,7 +102,7 @@ export function PaymentInterface() {
     }
   }, []);
 
-  const fetchUsernames = useCallback(async () => {
+  const fetchUsernames = async () => {
     try {
       const response = await fetch(`${BASE_URL}/user/usernames`, {
         headers: {
@@ -121,39 +114,38 @@ export function PaymentInterface() {
       }
       const data = await response.json();
       setAvailableUsernames(data.usernames);
+      // Initialize filteredUsers with all available usernames
       setFilteredUsers(data.usernames.map((username: string) => ({ value: username, label: username })));
     } catch (error) {
       console.error('Error fetching usernames:', error);
-      // Consider adding a retry mechanism or user notification here
     }
-  }, []);
+  };
 
   const refreshData = useCallback(async () => {
     setIsLoading(true);
     await Promise.all([fetchUserProfile(), fetchTransactions(), fetchUsernames()]);
     setIsLoading(false);
-  }, [fetchTransactions, fetchUsernames]);
+  }, [fetchTransactions, fetchUserProfile, fetchUsernames]);
 
   useEffect(() => {
-    const initializeData = async () => {
-      await refreshData();
-      setIsInitialized(true);
-    };
-
-    initializeData();
-  }, [refreshData]);
-
-  useEffect(() => {
-    if (!isInitialized) return;
-
-    const usernameRefreshInterval = setInterval(fetchUsernames, 60000);
-    const transactionRefreshInterval = setInterval(fetchTransactions, 20000);
-
+    refreshData();
+  
+    // Set up interval to refresh usernames every minute
+    const usernameRefreshInterval = setInterval(() => {
+      fetchUsernames();
+    }, 60000); // 60000 ms = 1 minute
+  
+    // Set up interval to refresh transactions every 20 seconds
+    const transactionRefreshInterval = setInterval(() => {
+      fetchTransactions();
+    }, 20000); // 20000 ms = 20 seconds
+  
+    // Clean up intervals on component unmount
     return () => {
       clearInterval(usernameRefreshInterval);
       clearInterval(transactionRefreshInterval);
     };
-  }, [isInitialized, fetchUsernames, fetchTransactions]);
+  }, [refreshData, fetchTransactions, fetchUsernames]);
 
   const handleSendMoney = async () => {
     if (amount && recipient && description) {
@@ -204,11 +196,10 @@ export function PaymentInterface() {
       username.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredUsers(filtered.map(username => ({ value: username, label: username })));
-    setIsDropdownOpen(true);
+    setIsDropdownOpen(true);  // Ensure dropdown opens when typing
     setTransactionStatus(null);
     setErrorMessage("");
   };
-
   const handleAmountChange = (value: string) => {
     setAmount(value);
     setTransactionStatus(null);
@@ -404,7 +395,8 @@ export function PaymentInterface() {
             {transactions.length === 0 ? (
               <div className="text-center py-4">
                 <p className="text-gray-500">No transactions yet.</p>
-                <p className="text-gray-500">Send some money to get started!</p></div>
+                <p className="text-gray-500">Send some money to get started!</p>
+              </div>
             ) : (
               transactions.map((transaction) => (
                 <div
@@ -461,7 +453,24 @@ export function PaymentInterface() {
             transform: rotate(0deg);
           }
         }
-          
+
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+
+        @keyframes spin-back {
+          0% {
+            transform: rotate(360deg);
+          }
+          100% {
+            transform: rotate(0deg);
+          }
+        }
       `}</style>
     </div>
   );
