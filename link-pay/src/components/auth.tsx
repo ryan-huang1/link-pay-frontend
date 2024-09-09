@@ -95,7 +95,11 @@ export default function Component() {
       setCookie('is_admin', data.is_admin.toString(), { maxAge: 3600, path: '/' });
 
       console.log('Login successful');
-      window.location.href = 'https://google.com'; // Redirect to user route
+      if (data.is_admin) {
+        window.location.href = 'https://youtube.com'; // Redirect admin to YouTube
+      } else {
+        window.location.href = 'https://google.com'; // Redirect regular user to Google
+      }
     } catch (error) {
       setError('Login failed. Please check your credentials and try again.');
     }
