@@ -143,7 +143,7 @@ export default function Component() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <Card className="w-[400px]">
+      <Card className="w-[370px]">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Welcome to LinkPay</CardTitle>
           <CardDescription className="text-center">Login or create a new account to start using LinkPay.</CardDescription>
