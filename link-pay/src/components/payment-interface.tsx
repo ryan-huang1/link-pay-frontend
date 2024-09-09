@@ -62,9 +62,17 @@ export function PaymentInterface() {
     if (parts.length === 2) return parts.pop()?.split(';').shift();
   };
 
+  const redirectToBank = () => {
+    window.location.href = 'https://bank.ryanhuang.xyz/';
+  };
+
   const fetchUserProfile = async () => {
     try {
       const token = getCookie('token');
+      if (!token) {
+        redirectToBank();
+        return;
+      }
       console.log('Token:', token); // Debug log
       const response = await fetch(`${BASE_URL}/user/profile`, {
         headers: {
@@ -88,6 +96,10 @@ export function PaymentInterface() {
     setIsRefreshing(true);
     try {
       const token = getCookie('token');
+      if (!token) {
+        redirectToBank();
+        return;
+      }
       const response = await fetch(`${BASE_URL}/transaction/history`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -112,6 +124,10 @@ export function PaymentInterface() {
   const fetchUsernames = useCallback(async () => {
     try {
       const token = getCookie('token');
+      if (!token) {
+        redirectToBank();
+        return;
+      }
       const response = await fetch(`${BASE_URL}/user/usernames`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -160,6 +176,10 @@ export function PaymentInterface() {
     if (amount && recipient && description) {
       try {
         const token = getCookie('token');
+        if (!token) {
+          redirectToBank();
+          return;
+        }
         const response = await fetch(`${BASE_URL}/transaction/create`, {
           method: 'POST',
           headers: {
