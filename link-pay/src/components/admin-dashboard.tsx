@@ -193,9 +193,8 @@ export function AdminDashboard() {
                 <Menu size={24} />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left">
+            <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-white">
               <SheetHeader>
-                <SheetTitle>Menu</SheetTitle>
                 <SheetDescription>
                   <SidebarContent />
                 </SheetDescription>
