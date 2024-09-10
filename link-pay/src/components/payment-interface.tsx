@@ -18,7 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 type TransactionStatus = "success" | "failure" | null;
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://127.0.0.1:5000';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.1.10:80';
 console.log('BASE_URL:', BASE_URL); // Debug log
 
 interface Transaction {
@@ -192,23 +192,29 @@ export function PaymentInterface() {
             description: description,
           }),
         });
-
+  
         const data = await response.json();
-
+  
         if (response.ok) {
           setTransactionStatus("success");
           setBalance(prevBalance => prevBalance - parseFloat(amount));
           await fetchTransactions();
         } else {
           setTransactionStatus("failure");
-          setErrorMessage(data.error || "Transaction failed");
+          if (data.error === 'Amount must be at least $0.01') {
+            setErrorMessage("Transaction amount must be at least $0.01");
+          } else if (data.error === 'Missing required fields') {
+            setErrorMessage("Please fill in all required fields");
+          } else {
+            setErrorMessage(data.error || "Transaction failed");
+          }
         }
       } catch (error) {
         setTransactionStatus("failure");
         setErrorMessage("An error occurred while processing the transaction");
         console.error('Error sending money:', error);
       }
-
+  
       setTimeout(() => {
         setIsOpen(false);
         setAmount("");
@@ -216,9 +222,14 @@ export function PaymentInterface() {
         setDescription("");
         setTransactionStatus(null);
         setErrorMessage("");
-      }, 1000);
+      }, 3000);  // Increased timeout to 3 seconds for better visibility
+    } else {
+      setTransactionStatus("failure");
+      setErrorMessage("Please fill in all required fields");
     }
   };
+  
+  
 
   const handleRecipientChange = (value: string) => {
     setRecipient(value);
@@ -426,7 +437,8 @@ export function PaymentInterface() {
             {transactions.length === 0 ? (
               <div className="text-center py-4">
                 <p className="text-gray-500">No transactions yet.</p>
-                <p className="text-gray-500">Send some money to get started!</p></div>
+                <p className="text-gray-500">Send some money to get started!</p>
+              </div>
             ) : (
               transactions.map((transaction) => (
                 <div
