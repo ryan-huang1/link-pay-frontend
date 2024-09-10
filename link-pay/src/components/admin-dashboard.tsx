@@ -11,7 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTrigger } from "@/components/ui/sheet"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { format } from "date-fns"
+import { format, formatDistanceToNow } from "date-fns"
 
 // Mock data
 const initialUsers = [
@@ -27,6 +27,7 @@ const initialTransactions = [
   { id: 3, from: "bob_smith", to: "alice_j", amount: 30.00, date: new Date("2023-06-03T18:45:00"), type: "transfer" },
   { id: 4, from: "diana_p", to: "charlie_b", amount: 100.00, date: new Date("2023-06-04T11:20:00"), type: "transfer" },
 ]
+
 
 const initialLogs = [
   {
@@ -66,7 +67,6 @@ const initialLogs = [
   }
 ]
 
-
 // Add this type definition
 type User = {
   id: number;
@@ -89,7 +89,19 @@ export function AdminDashboard() {
   const totalFeesCollected = transactions.reduce((sum, tx) => sum + (tx.type === "transfer" ? tx.amount * 0.01 : 0), 0)
 
   const formatDate = (date: string | Date) => {
-    return format(new Date(date), "yyyy-MM-dd HH:mm:ss")
+    const dateObj = new Date(date);
+    const day = dateObj.getDate();
+    const getSuffix = (day: number): string => {
+      if (day >= 11 && day <= 13) return 'th';
+      switch (day % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+      }
+    };
+    const formattedDate = format(dateObj, `MMM d'${getSuffix(day)}', h:mma`);
+    return formattedDate.replace(/am|pm/i, match => match.toLowerCase());
   }
 
   const handleBalanceAdjustment = (type: 'add' | 'subtract') => {
@@ -399,23 +411,19 @@ export function AdminDashboard() {
                         <table className="w-full">
                           <thead>
                             <tr className="border-b">
-                              <th className="px-4 py-2 text-left hidden sm:table-cell">Date</th>
+                              <th className="px-4 py-2 text-left">Date</th>
                               <th className="px-4 py-2 text-left">From</th>
                               <th className="px-4 py-2 text-left">To</th>
                               <th className="px-4 py-2 text-left">Amount</th>
-                              <th className="px-4 py-2 text-left hidden sm:table-cell">Type</th>
-                              <th className="px-4 py-2 text-left hidden sm:table-cell">Fee</th>
                             </tr>
                           </thead>
                           <tbody>
                             {transactions.map((tx) => (
                               <tr key={tx.id} className="border-b">
-                                <td className="px-4 py-2 hidden sm:table-cell">{formatDate(tx.date)}</td>
+                                <td className="px-4 py-2">{formatDate(tx.date)}</td>
                                 <td className="px-4 py-2">{tx.from}</td>
                                 <td className="px-4 py-2">{tx.to}</td>
                                 <td className="px-4 py-2">${tx.amount.toFixed(2)}</td>
-                                <td className="px-4 py-2 hidden sm:table-cell">{tx.type}</td>
-                                <td className="px-4 py-2 hidden sm:table-cell">${tx.type === "transfer" ? (tx.amount * 0.01).toFixed(2) : "0.00"}</td>
                               </tr>
                             ))}
                           </tbody>
