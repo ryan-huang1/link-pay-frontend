@@ -144,33 +144,33 @@ export function AdminDashboard() {
 
   const SidebarContent = () => (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold mb-6">Admin Dashboard</h2>
+      <h2 className="text-2xl font-bold mb-6 text-black">Admin Dashboard</h2>
       <nav className="space-y-2">
         <button
-          className={`flex items-center space-x-2 w-full p-2 rounded transition-colors duration-200 ease-in-out ${
-            activeTab === "users" ? "bg-primary/10 text-primary" : "hover:bg-gray-100"
+          className={`flex items-center space-x-2 w-full p-2 rounded transition-colors duration-200 ease-in-out text-black ${
+            activeTab === "users" ? "bg-primary/10" : "hover:bg-gray-100"
           }`}
           onClick={() => setActiveTab("users")}
         >
-          <Users size={20} />
+          <Users size={20} className="text-black" />
           <span>Users</span>
         </button>
         <button
-          className={`flex items-center space-x-2 w-full p-2 rounded transition-colors duration-200 ease-in-out ${
-            activeTab === "transactions" ? "bg-primary/10 text-primary" : "hover:bg-gray-100"
+          className={`flex items-center space-x-2 w-full p-2 rounded transition-colors duration-200 ease-in-out text-black ${
+            activeTab === "transactions" ? "bg-primary/10" : "hover:bg-gray-100"
           }`}
           onClick={() => setActiveTab("transactions")}
         >
-          <CreditCard size={20} />
+          <CreditCard size={20} className="text-black" />
           <span>Transactions</span>
         </button>
         <button
-          className={`flex items-center space-x-2 w-full p-2 rounded transition-colors duration-200 ease-in-out ${
-            activeTab === "logs" ? "bg-primary/10 text-primary" : "hover:bg-gray-100"
+          className={`flex items-center space-x-2 w-full p-2 rounded transition-colors duration-200 ease-in-out text-black ${
+            activeTab === "logs" ? "bg-primary/10" : "hover:bg-gray-100"
           }`}
           onClick={() => setActiveTab("logs")}
         >
-          <ClipboardList size={20} />
+          <ClipboardList size={20} className="text-black" />
           <span>Admin Logs</span>
         </button>
       </nav>
@@ -202,7 +202,7 @@ export function AdminDashboard() {
               </SheetHeader>
             </SheetContent>
           </Sheet>
-          <h1 className="text-xl font-bold">Dashboard Overview</h1>
+          <h1 className="text-xl font-bold text-black">Dashboard Overview</h1>
           <Button variant="outline" size="icon" className="rounded-full">
             <RefreshCw size={24} />
             <span className="sr-only">Refresh</span>
@@ -253,9 +253,9 @@ export function AdminDashboard() {
 
               <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 w-full">
                 <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="users" className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm">Users</TabsTrigger>
-                  <TabsTrigger value="transactions" className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm">Transactions</TabsTrigger>
-                  <TabsTrigger value="logs" className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm">Admin Logs</TabsTrigger>
+                  <TabsTrigger value="users" className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-500 data-[state=active]:bg-white">Users</TabsTrigger>
+                  <TabsTrigger value="transactions" className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-500 data-[state=active]:bg-white">Transactions</TabsTrigger>
+                  <TabsTrigger value="logs" className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-500 data-[state=active]:bg-white">Admin Logs</TabsTrigger>
                 </TabsList>
                 <TabsContent value="users" className="space-y-4">
                   <Card className="w-full">
