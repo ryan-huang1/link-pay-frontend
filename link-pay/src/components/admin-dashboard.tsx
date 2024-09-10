@@ -1,14 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { RefreshCw, CreditCard, DollarSign, Users, Percent, Plus, Minus, Trash2, ClipboardList, Menu, ChevronRight, MoreVertical } from "lucide-react"
+import { RefreshCw, CreditCard, DollarSign, Users, Percent, Plus, Minus, ClipboardList, Menu, MoreVertical } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTrigger } from "@/components/ui/sheet"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { format } from "date-fns"
@@ -83,7 +83,7 @@ export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("users")
   const [users, setUsers] = useState(initialUsers)
   const [transactions, setTransactions] = useState(initialTransactions)
-  const [logs, setLogs] = useState(initialLogs)
+  const [logs] = useState(initialLogs)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [adjustmentAmount, setAdjustmentAmount] = useState("")
 
