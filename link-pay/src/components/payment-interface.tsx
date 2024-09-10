@@ -199,6 +199,16 @@ export function PaymentInterface() {
           setTransactionStatus("success");
           setBalance(prevBalance => prevBalance - parseFloat(amount));
           await fetchTransactions();
+          
+          // Only close the dialog and reset fields on success
+          setTimeout(() => {
+            setIsOpen(false);
+            setAmount("");
+            setRecipient("");
+            setDescription("");
+            setTransactionStatus(null);
+            setErrorMessage("");
+          }, 3000);
         } else {
           setTransactionStatus("failure");
           if (data.error === 'Amount must be at least $0.01') {
@@ -208,29 +218,20 @@ export function PaymentInterface() {
           } else {
             setErrorMessage(data.error || "Transaction failed");
           }
+          // Don't close the dialog or reset fields on error
         }
       } catch (error) {
         setTransactionStatus("failure");
         setErrorMessage("An error occurred while processing the transaction");
         console.error('Error sending money:', error);
+        // Don't close the dialog or reset fields on error
       }
-  
-      setTimeout(() => {
-        setIsOpen(false);
-        setAmount("");
-        setRecipient("");
-        setDescription("");
-        setTransactionStatus(null);
-        setErrorMessage("");
-      }, 3000);  // Increased timeout to 3 seconds for better visibility
     } else {
       setTransactionStatus("failure");
       setErrorMessage("Please fill in all required fields");
+      // Don't close the dialog or reset fields on error
     }
   };
-  
-  
-
   const handleRecipientChange = (value: string) => {
     setRecipient(value);
     const filtered = availableUsernames.filter(username => 
