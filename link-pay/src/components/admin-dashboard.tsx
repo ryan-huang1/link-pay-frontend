@@ -189,7 +189,7 @@ export function AdminDashboard() {
         <header className="bg-white shadow-sm p-4 flex justify-between items-center w-full">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="lg:hidden">
+              <Button variant="outline" size="icon" className="lg:hidden text-gray-500" >
                 <Menu size={24} />
               </Button>
             </SheetTrigger>
@@ -204,7 +204,7 @@ export function AdminDashboard() {
           </Sheet>
           <h1 className="text-xl font-bold text-black">Dashboard Overview</h1>
           <Button variant="outline" size="icon" className="rounded-full">
-            <RefreshCw size={24} />
+            <RefreshCw size={20} className="text-gray-500" />
             <span className="sr-only">Refresh</span>
           </Button>
         </header>
