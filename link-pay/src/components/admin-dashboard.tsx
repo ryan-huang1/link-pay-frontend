@@ -30,46 +30,42 @@ const initialTransactions = [
 
 const initialLogs = [
   {
-    action_description: "New user registered: ryan",
-    action_type: "USER_REGISTRATION",
-    admin_id: null,
-    affected_user_id: 1,
     id: 1,
-    timestamp: "2024-09-07T14:55:43"
+    timestamp: "2024-09-07T14:55:43",
+    action_description: "New user registered: ryan",
+    admin: null,
+    affected_user: "ryan"
   },
   {
-    action_description: "User logged in: ryan",
-    action_type: "USER_LOGIN",
-    admin_id: null,
-    affected_user_id: 1,
     id: 2,
-    timestamp: "2024-09-07T14:56:00"
+    timestamp: "2024-09-07T14:56:00",
+    action_description: "User logged in: ryan",
+    admin: null,
+    affected_user: "ryan"
   },
   {
-    action_description: "Created new admin user admin",
-    action_type: "ADMIN_CREATE",
-    admin_id: null,
-    affected_user_id: null,
     id: 3,
-    timestamp: "2024-09-07T14:56:10"
+    timestamp: "2024-09-07T14:56:10",
+    action_description: "Created new admin user admin",
+    admin: null,
+    affected_user: null
   },
   {
-    action_description: "User logged in: admin",
-    action_type: "USER_LOGIN",
-    admin_id: null,
-    affected_user_id: 2,
     id: 4,
-    timestamp: "2024-09-07T14:56:16"
+    timestamp: "2024-09-07T14:56:16",
+    action_description: "User logged in: admin",
+    admin: null,
+    affected_user: "admin"
   },
   {
-    action_description: "Marked user ryan as deleted",
-    action_type: "USER_DELETE",
-    admin_id: 2,
-    affected_user_id: 1,
     id: 5,
-    timestamp: "2024-09-07T14:56:25"
+    timestamp: "2024-09-07T14:56:25",
+    action_description: "Marked user ryan as deleted",
+    admin: "admin",
+    affected_user: "ryan"
   }
 ]
+
 
 // Add this type definition
 type User = {
@@ -440,20 +436,22 @@ export function AdminDashboard() {
                           <thead>
                             <tr className="border-b">
                               <th className="px-4 py-2 text-left">Timestamp</th>
-                              <th className="px-4 py-2 text-left">Action Type</th>
-                              <th className="px-4 py-2 text-left hidden sm:table-cell">Description</th>
-                              <th className="px-4 py-2 text-left hidden sm:table-cell">Admin ID</th>
-                              <th className="px-4 py-2 text-left hidden sm:table-cell">Affected User ID</th>
+                              <th className="px-4 py-2 text-left">Description</th>
+                              <th className="px-4 py-2 text-left hidden md:table-cell">Admin</th>
+                              <th className="px-4 py-2 text-left hidden md:table-cell">Affected User</th>
                             </tr>
                           </thead>
                           <tbody>
                             {logs.map((log) => (
                               <tr key={log.id} className="border-b">
                                 <td className="px-4 py-2">{formatDate(log.timestamp)}</td>
-                                <td className="px-4 py-2">{log.action_type}</td>
-                                <td className="px-4 py-2 hidden sm:table-cell">{log.action_description}</td>
-                                <td className="px-4 py-2 hidden sm:table-cell">{log.admin_id || '-'}</td>
-                                <td className="px-4 py-2 hidden sm:table-cell">{log.affected_user_id || '-'}</td>
+                                <td className="px-4 py-2 font-medium">{log.action_description}</td>
+                                <td className="px-4 py-2 hidden md:table-cell">
+                                  {log.admin || '-'}
+                                </td>
+                                <td className="px-4 py-2 hidden md:table-cell">
+                                  {log.affected_user || '-'}
+                                </td>
                               </tr>
                             ))}
                           </tbody>
