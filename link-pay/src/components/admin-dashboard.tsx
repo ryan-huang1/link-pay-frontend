@@ -1,21 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { Bell, CreditCard, DollarSign, Users, Percent, Plus, Minus, Trash2, ClipboardList } from "lucide-react"
+import { RefreshCw, CreditCard, DollarSign, Users, Percent, Plus, Minus, Trash2, ClipboardList, Menu, ChevronRight, MoreVertical } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { format } from "date-fns"
 
 // Mock data
@@ -76,7 +71,7 @@ const initialLogs = [
   }
 ]
 
-// Add this type definition at the top of your file
+// Add this type definition
 type User = {
   id: number;
   username: string;
@@ -88,7 +83,7 @@ export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("users")
   const [users, setUsers] = useState(initialUsers)
   const [transactions, setTransactions] = useState(initialTransactions)
-  const [logs] = useState(initialLogs)
+  const [logs, setLogs] = useState(initialLogs)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [adjustmentAmount, setAdjustmentAmount] = useState("")
 
@@ -147,303 +142,332 @@ export function AdminDashboard() {
     setTransactions([...transactions, newTransaction])
   }
 
+  const SidebarContent = () => (
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold mb-6">Admin Dashboard</h2>
+      <nav className="space-y-2">
+        <button
+          className={`flex items-center space-x-2 w-full p-2 rounded transition-colors duration-200 ease-in-out ${
+            activeTab === "users" ? "bg-primary/10 text-primary" : "hover:bg-gray-100"
+          }`}
+          onClick={() => setActiveTab("users")}
+        >
+          <Users size={20} />
+          <span>Users</span>
+        </button>
+        <button
+          className={`flex items-center space-x-2 w-full p-2 rounded transition-colors duration-200 ease-in-out ${
+            activeTab === "transactions" ? "bg-primary/10 text-primary" : "hover:bg-gray-100"
+          }`}
+          onClick={() => setActiveTab("transactions")}
+        >
+          <CreditCard size={20} />
+          <span>Transactions</span>
+        </button>
+        <button
+          className={`flex items-center space-x-2 w-full p-2 rounded transition-colors duration-200 ease-in-out ${
+            activeTab === "logs" ? "bg-primary/10 text-primary" : "hover:bg-gray-100"
+          }`}
+          onClick={() => setActiveTab("logs")}
+        >
+          <ClipboardList size={20} />
+          <span>Admin Logs</span>
+        </button>
+      </nav>
+    </div>
+  )
+
   return (
-    <div className="flex h-screen bg-gray-100">
-      <aside className="w-64 bg-white p-6 shadow-md">
-        <h2 className="text-2xl font-bold mb-6 text-black">Admin Dashboard</h2>
-        <nav>
-          <button
-            className={`flex items-center space-x-2 mb-4 p-2 w-full text-left rounded transition-colors duration-200 ease-in-out text-black ${
-              activeTab === "users" ? "bg-primary/10 text-primary" : "hover:bg-gray-100"
-            }`}
-            onClick={() => setActiveTab("users")}
-          >
-            <Users size={20} />
-            <span>Users</span>
-          </button>
-          <button
-            className={`flex items-center space-x-2 mb-4 p-2 w-full text-left rounded transition-colors duration-200 ease-in-out text-black ${
-              activeTab === "transactions" ? "bg-primary/10 text-primary" : "hover:bg-gray-100"
-            }`}
-            onClick={() => setActiveTab("transactions")}
-          >
-            <CreditCard size={20} />
-            <span>Transactions</span>
-          </button>
-          <button
-            className={`flex items-center space-x-2 mb-4 p-2 w-full text-left rounded transition-colors duration-200 ease-in-out text-black ${
-              activeTab === "logs" ? "bg-primary/10 text-primary" : "hover:bg-gray-100"
-            }`}
-            onClick={() => setActiveTab("logs")}
-          >
-            <ClipboardList size={20} />
-            <span>Admin Logs</span>
-          </button>
-        </nav>
+    <div className="flex h-screen w-full overflow-hidden bg-gray-100">
+      <aside className="hidden lg:block w-64 bg-white shadow-md overflow-y-auto">
+        <div className="p-6">
+          <SidebarContent />
+        </div>
       </aside>
 
-      <main className="flex-1 p-6 overflow-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-black">Dashboard Overview</h1>
+      <div className="flex flex-col flex-1 overflow-hidden w-full">
+        <header className="bg-white shadow-sm p-4 flex justify-between items-center w-full">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="lg:hidden">
+                <Menu size={24} />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left">
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+                <SheetDescription>
+                  <SidebarContent />
+                </SheetDescription>
+              </SheetHeader>
+            </SheetContent>
+          </Sheet>
+          <h1 className="text-xl font-bold">Dashboard Overview</h1>
           <Button variant="outline" size="icon" className="rounded-full">
-            <Bell size={24} />
-            <span className="sr-only">Notifications</span>
+            <RefreshCw size={24} />
+            <span className="sr-only">Refresh</span>
           </Button>
-        </div>
+        </header>
 
-        <div className="grid gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${totalBalance.toFixed(2)}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
-              <CreditCard className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalTransactions}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Transaction</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${averageTransaction.toFixed(2)}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Fees Collected</CardTitle>
-              <Percent className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${totalFeesCollected.toFixed(2)}</div>
-            </CardContent>
-          </Card>
-        </div>
+        <main className="flex-1 overflow-auto p-4 sm:p-6 w-full">
+          <ScrollArea className="h-full w-full">
+            <div className="space-y-6 w-full">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
+                <Card className="w-full">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
+                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">${totalBalance.toFixed(2)}</div>
+                  </CardContent>
+                </Card>
+                <Card className="w-full">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
+                    <CreditCard className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{totalTransactions}</div>
+                  </CardContent>
+                </Card>
+                <Card className="w-full">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Average Transaction</CardTitle>
+                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">${averageTransaction.toFixed(2)}</div>
+                  </CardContent>
+                </Card>
+                <Card className="w-full">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Total Fees Collected</CardTitle>
+                    <Percent className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">${totalFeesCollected.toFixed(2)}</div>
+                  </CardContent>
+                </Card>
+              </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
-  <TabsTrigger 
-    value="users" 
-    className="text-black focus:bg-white data-[state=active]:bg-white"
-  >
-    Users
-  </TabsTrigger>
-  <TabsTrigger 
-    value="transactions" 
-    className="text-black focus:bg-white data-[state=active]:bg-white"
-  >
-    Transactions
-  </TabsTrigger>
-  <TabsTrigger 
-    value="logs" 
-    className="text-black focus:bg-white data-[state=active]:bg-white"
-  >
-    Admin Logs
-  </TabsTrigger>
-</TabsList>
-          <TabsContent value="users" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Users and Balances</CardTitle>
-                <CardDescription>A list of all users and their current account balances.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Username</TableHead>
-                      <TableHead>Business Name</TableHead>
-                      <TableHead>Balance</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {users.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>{user.username}</TableCell>
-                        <TableCell>{user.businessName}</TableCell>
-                        <TableCell>${user.balance.toFixed(2)}</TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="outline" onClick={() => setSelectedUser(user)}>Adjust Balance</Button>
-                              </DialogTrigger>
-                              <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                  <DialogTitle>Adjust Balance for {user.username}</DialogTitle>
-                                  <DialogDescription>
-                                    Please enter the amount you want to add or subtract from the user&apos;s balance.
-                                  </DialogDescription>
-                                </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                  <div className="grid grid-cols-4 items-center gap-4">
-                                    <Input
-                                      id="amount"
-                                      type="number"
-                                      placeholder="Amount"
-                                      value={adjustmentAmount}
-                                      onChange={(e) => setAdjustmentAmount(e.target.value)}
-                                      className="col-span-4"
-                                    />
-                                  </div>
-                                </div>
-                                <div className="flex justify-between">
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <Button variant="outline">
-                                        <Plus className="mr-2 h-4 w-4" /> Add Funds
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="users" className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm">Users</TabsTrigger>
+                  <TabsTrigger value="transactions" className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm">Transactions</TabsTrigger>
+                  <TabsTrigger value="logs" className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm">Admin Logs</TabsTrigger>
+                </TabsList>
+                <TabsContent value="users" className="space-y-4">
+                  <Card className="w-full">
+                    <CardHeader>
+                      <CardTitle>Users and Balances</CardTitle>
+                      <CardDescription>A list of all users and their current account balances.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="overflow-x-auto w-full">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b">
+                              <th className="px-4 py-2 text-left">Username</th>
+                              <th className="px-4 py-2 text-left hidden sm:table-cell">Business Name</th>
+                              <th className="px-4 py-2 text-left">Balance</th>
+                              <th className="px-4 py-2 text-right">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {users.map((user) => (
+                              <tr key={user.id} className="border-b">
+                                <td className="px-4 py-2">{user.username}</td>
+                                <td className="px-4 py-2 hidden sm:table-cell">{user.businessName}</td>
+                                <td className="px-4 py-2">${user.balance.toFixed(2)}</td>
+                                <td className="px-4 py-2 text-right">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" className="h-8 w-8 p-0">
+                                        <span className="sr-only">Open menu</span>
+                                        <MoreVertical className="h-4 w-4" />
                                       </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>Confirm Balance Adjustment</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          Are you sure you want to add ${adjustmentAmount} to {user.username}&apos;s balance?
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel className="bg-primary text-primary-foreground hover:bg-primary/90">Cancel</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleBalanceAdjustment('add')} className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
-                                          Confirm
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <Button variant="outline">
-                                        <Minus className="mr-2 h-4 w-4" /> Subtract Funds
-                                      </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>Confirm Balance Adjustment</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          Are you sure you want to subtract ${adjustmentAmount} from {user.username}&apos;s balance?
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel className="bg-primary text-primary-foreground hover:bg-primary/90">Cancel</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleBalanceAdjustment('subtract')} className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
-                                          Confirm
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="outline" size="icon">
-                                  <Trash2 className="h-4 w-4" />
-                                  <span className="sr-only">Delete Account</span>
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete {user.username}&apos;s account
-                                    and remove all associated data from our servers.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel className="bg-primary text-primary-foreground hover:bg-primary/90">Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDeleteAccount(user.id)} className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
-                                    Delete Account
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="transactions" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Transaction History</CardTitle>
-                <CardDescription>A list of all transactions on the platform.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>From</TableHead>
-                      <TableHead>To</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Fee</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {transactions.map((tx) => (
-                      <TableRow key={tx.id}>
-                        <TableCell>{formatDate(tx.date)}</TableCell>
-                        <TableCell>{tx.from}</TableCell>
-                        <TableCell>{tx.to}</TableCell>
-                        <TableCell>${tx.amount.toFixed(2)}</TableCell>
-                        <TableCell>{tx.type}</TableCell>
-                        <TableCell>${tx.type === "transfer" ? (tx.amount * 0.01).toFixed(2) : "0.00"}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="logs" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Admin Logs</CardTitle>
-                <CardDescription>A list of all admin actions and system events.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Timestamp</TableHead>
-                      <TableHead>Action Type</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Admin ID</TableHead>
-                      <TableHead>Affected User ID</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {logs.map((log) => (
-                      <TableRow key={log.id}>
-                        <TableCell>{formatDate(log.timestamp)}</TableCell>
-                        <TableCell>{log.action_type}</TableCell>
-                        <TableCell>{log.action_description}</TableCell>
-                        <TableCell>{log.admin_id || '-'}</TableCell>
-                        <TableCell>{log.affected_user_id || '-'}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </main>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuItem onSelect={() => setSelectedUser(user)}>
+                                        <Dialog>
+                                          <DialogTrigger asChild>
+                                            <Button variant="ghost">Adjust Balance</Button>
+                                          </DialogTrigger>
+                                          <DialogContent className="sm:max-w-[425px]">
+                                            <DialogHeader>
+                                              <DialogTitle>Adjust Balance for {user.username}</DialogTitle>
+                                              <DialogDescription>
+                                                Please enter the amount you want to add or subtract from the user&apos;s balance.
+                                              </DialogDescription>
+                                            </DialogHeader>
+                                            <div className="grid gap-4 py-4">
+                                              <div className="grid grid-cols-4 items-center gap-4">
+                                                <Input
+                                                  id="amount"
+                                                  type="number"
+                                                  placeholder="Amount"
+                                                  value={adjustmentAmount}
+                                                  onChange={(e) => setAdjustmentAmount(e.target.value)}
+                                                  className="col-span-4"
+                                                />
+                                              </div>
+                                            </div>
+                                            <div className="flex justify-between">
+                                              <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                  <Button variant="outline">
+                                                    <Plus className="mr-2 h-4 w-4" /> Add Funds
+                                                  </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                  <AlertDialogHeader>
+                                                    <AlertDialogTitle>Confirm Balance Adjustment</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                      Are you sure you want to add ${adjustmentAmount} to {user.username}&apos;s balance?
+                                                    </AlertDialogDescription>
+                                                  </AlertDialogHeader>
+                                                  <AlertDialogFooter>
+                                                    <AlertDialogCancel className="bg-primary text-primary-foreground hover:bg-primary/90">Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleBalanceAdjustment('add')} className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
+                                                      Confirm
+                                                    </AlertDialogAction>
+                                                  </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                              </AlertDialog>
+                                              <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                  <Button variant="outline">
+                                                    <Minus className="mr-2 h-4 w-4" /> Subtract Funds
+                                                  </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                  <AlertDialogHeader>
+                                                    <AlertDialogTitle>Confirm Balance Adjustment</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                      Are you sure you want to subtract ${adjustmentAmount} from {user.username}&apos;s balance?
+                                                    </AlertDialogDescription>
+                                                  </AlertDialogHeader>
+                                                  <AlertDialogFooter>
+                                                    <AlertDialogCancel className="bg-primary text-primary-foreground hover:bg-primary/90">Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleBalanceAdjustment('subtract')} className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
+                                                      Confirm
+                                                    </AlertDialogAction>
+                                                  </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                              </AlertDialog>
+                                            </div>
+                                          </DialogContent>
+                                        </Dialog>
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onSelect={() => handleDeleteAccount(user.id)}>
+                                        <AlertDialog>
+                                          <AlertDialogTrigger asChild>
+                                            <Button variant="ghost">Delete Account</Button>
+                                          </AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                              <AlertDialogDescription>
+                                                This action cannot be undone. This will permanently delete {user.username}&apos;s account
+                                                and remove all associated data from our servers.
+                                              </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                              <AlertDialogCancel className="bg-primary text-primary-foreground hover:bg-primary/90">Cancel</AlertDialogCancel>
+                                              <AlertDialogAction onClick={() => handleDeleteAccount(user.id)} className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
+                                                Delete Account
+                                              </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                        </AlertDialog>
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="transactions" className="space-y-4">
+                  <Card className="w-full">
+                    <CardHeader>
+                      <CardTitle>Transaction History</CardTitle>
+                      <CardDescription>A list of all transactions on the platform.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="overflow-x-auto w-full">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b">
+                              <th className="px-4 py-2 text-left hidden sm:table-cell">Date</th>
+                              <th className="px-4 py-2 text-left">From</th>
+                              <th className="px-4 py-2 text-left">To</th>
+                              <th className="px-4 py-2 text-left">Amount</th>
+                              <th className="px-4 py-2 text-left hidden sm:table-cell">Type</th>
+                              <th className="px-4 py-2 text-left hidden sm:table-cell">Fee</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {transactions.map((tx) => (
+                              <tr key={tx.id} className="border-b">
+                                <td className="px-4 py-2 hidden sm:table-cell">{formatDate(tx.date)}</td>
+                                <td className="px-4 py-2">{tx.from}</td>
+                                <td className="px-4 py-2">{tx.to}</td>
+                                <td className="px-4 py-2">${tx.amount.toFixed(2)}</td>
+                                <td className="px-4 py-2 hidden sm:table-cell">{tx.type}</td>
+                                <td className="px-4 py-2 hidden sm:table-cell">${tx.type === "transfer" ? (tx.amount * 0.01).toFixed(2) : "0.00"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="logs" className="space-y-4">
+                  <Card className="w-full">
+                    <CardHeader>
+                      <CardTitle>Admin Logs</CardTitle>
+                      <CardDescription>A list of all admin actions and system events.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="overflow-x-auto w-full">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b">
+                              <th className="px-4 py-2 text-left">Timestamp</th>
+                              <th className="px-4 py-2 text-left">Action Type</th>
+                              <th className="px-4 py-2 text-left hidden sm:table-cell">Description</th>
+                              <th className="px-4 py-2 text-left hidden sm:table-cell">Admin ID</th>
+                              <th className="px-4 py-2 text-left hidden sm:table-cell">Affected User ID</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {logs.map((log) => (
+                              <tr key={log.id} className="border-b">
+                                <td className="px-4 py-2">{formatDate(log.timestamp)}</td>
+                                <td className="px-4 py-2">{log.action_type}</td>
+                                <td className="px-4 py-2 hidden sm:table-cell">{log.action_description}</td>
+                                <td className="px-4 py-2 hidden sm:table-cell">{log.admin_id || '-'}</td>
+                                <td className="px-4 py-2 hidden sm:table-cell">{log.affected_user_id || '-'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </ScrollArea>
+        </main>
+      </div>
     </div>
   )
 }
