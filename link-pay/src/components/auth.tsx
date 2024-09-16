@@ -15,6 +15,7 @@ export default function Component() {
   const [generatedUsername, setGeneratedUsername] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [registrationCode, setRegistrationCode] = useState<string>("");
   const [error, setError] = useState<string>("");
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.1.10:80';
 
@@ -115,13 +116,22 @@ export default function Component() {
       return;
     }
 
+    if (!registrationCode) {
+      setError("Please enter a registration code.");
+      return;
+    }
+
     try {
       const response = await fetch(`${BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username: generatedUsername, password }),
+        body: JSON.stringify({ 
+          username: generatedUsername, 
+          password, 
+          registration_code: registrationCode 
+        }),
       });
 
       if (!response.ok) {
@@ -137,7 +147,7 @@ export default function Component() {
       console.log('Registration successful');
       window.location.href = 'https://bank.ryanhuang.xyz/profile'; // Redirect to user route
     } catch (error) {
-      setError('Registration failed. Please try again.');
+      setError('Registration failed. Please check your registration code and try again.');
     }
   };
 
@@ -176,6 +186,7 @@ export default function Component() {
                         required
                         value={password}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                        placeholder="••••••••"
                       />
                       <Button
                         type="button"
@@ -183,7 +194,6 @@ export default function Component() {
                         size="icon"
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                         onClick={togglePasswordVisibility}
-                        aria-label={showPassword ? "Hide password" : "Show password"}
                       >
                         {showPassword ? (
                           <EyeOffIcon className="h-4 w-4" />
@@ -193,10 +203,10 @@ export default function Component() {
                       </Button>
                     </div>
                   </div>
-                  {error && <p className="text-red-500 text-sm">{error}</p>}
                 </div>
-                <CardFooter className="px-0 pt-4">
+                <CardFooter className="flex flex-col space-y-2 px-0 pt-4">
                   <Button type="submit" className="w-full">Login</Button>
+                  {error && <p className="text-red-500 text-sm">{error}</p>}
                 </CardFooter>
               </form>
             </TabsContent>
@@ -216,7 +226,7 @@ export default function Component() {
                       <Button
                         type="button"
                         onClick={generateUsername}
-                        aria-label="Generate username"
+                        className="shrink-0"
                       >
                         <RefreshCwIcon className="h-4 w-4 mr-2" />
                         Generate
@@ -232,6 +242,7 @@ export default function Component() {
                         required
                         value={password}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                        placeholder="••••••••"
                       />
                       <Button
                         type="button"
@@ -239,7 +250,6 @@ export default function Component() {
                         size="icon"
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                         onClick={togglePasswordVisibility}
-                        aria-label={showPassword ? "Hide password" : "Show password"}
                       >
                         {showPassword ? (
                           <EyeOffIcon className="h-4 w-4" />
@@ -249,10 +259,21 @@ export default function Component() {
                       </Button>
                     </div>
                   </div>
-                  {error && <p className="text-red-500 text-sm">{error}</p>}
+                  <div className="space-y-2">
+                    <Label htmlFor="registration-code">Registration Code</Label>
+                    <Input
+                      id="registration-code"
+                      type="text"
+                      required
+                      value={registrationCode}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setRegistrationCode(e.target.value)}
+                      placeholder="three-word-code"
+                    />
+                  </div>
                 </div>
-                <CardFooter className="px-0 pt-4">
+                <CardFooter className="flex flex-col space-y-2 px-0 pt-4">
                   <Button type="submit" className="w-full">Create Account</Button>
+                  {error && <p className="text-red-500 text-sm">{error}</p>}
                 </CardFooter>
               </form>
             </TabsContent>
