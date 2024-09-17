@@ -3,20 +3,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowUpRight, ArrowDownLeft, ChevronDown, CheckCircle, XCircle, RefreshCw } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-
-type TransactionStatus = "success" | "failure" | null;
+import { ArrowUpRight, ArrowDownLeft, RefreshCw } from "lucide-react";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.1.10:80';
 console.log('BASE_URL:', BASE_URL); // Debug log
@@ -38,18 +26,9 @@ interface User {
 
 export function BusinessInterface() {
   const [balance, setBalance] = useState<number>(0);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [amount, setAmount] = useState<string>("");
-  const [recipient, setRecipient] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [itemCount, setItemCount] = useState<string>("1");
   const [userName, setUserName] = useState<string>("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -203,19 +182,6 @@ export function BusinessInterface() {
       });
     }
   }, [isRefreshing, fetchTransactions]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   useEffect(() => {
     if (isRefreshing && refreshIconRef.current) {
