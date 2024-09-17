@@ -28,6 +28,7 @@ interface Transaction {
   amount: number;
   description: string;
   timestamp: string;
+  item_count: number;  // New field
 }
 
 interface User {
@@ -41,6 +42,7 @@ export function PaymentInterface() {
   const [amount, setAmount] = useState<string>("");
   const [recipient, setRecipient] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [itemCount, setItemCount] = useState<string>("1");  // New state
   const [userName, setUserName] = useState<string>("");
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -88,7 +90,6 @@ export function PaymentInterface() {
     } catch (error) {
       setError('Failed to load user profile');
       console.error('Error fetching user profile:', error);
-      // Consider adding a retry mechanism or user notification here
     }
   };
 
@@ -173,7 +174,7 @@ export function PaymentInterface() {
   }, [isInitialized, fetchUsernames, fetchTransactions]);
 
   const handleSendMoney = async () => {
-    if (amount && recipient && description) {
+    if (amount && recipient && description && itemCount) {
       try {
         const token = getCookie('token');
         if (!token) {
@@ -190,6 +191,7 @@ export function PaymentInterface() {
             recipient_username: recipient,
             amount: parseFloat(amount),
             description: description,
+            item_count: parseInt(itemCount),
           }),
         });
   
@@ -200,12 +202,12 @@ export function PaymentInterface() {
           setBalance(prevBalance => prevBalance - parseFloat(amount));
           await fetchTransactions();
           
-          // Only close the dialog and reset fields on success
           setTimeout(() => {
             setIsOpen(false);
             setAmount("");
             setRecipient("");
             setDescription("");
+            setItemCount("1");
             setTransactionStatus(null);
             setErrorMessage("");
           }, 3000);
@@ -218,20 +220,18 @@ export function PaymentInterface() {
           } else {
             setErrorMessage(data.error || "Transaction failed");
           }
-          // Don't close the dialog or reset fields on error
         }
       } catch (error) {
         setTransactionStatus("failure");
         setErrorMessage("An error occurred while processing the transaction");
         console.error('Error sending money:', error);
-        // Don't close the dialog or reset fields on error
       }
     } else {
       setTransactionStatus("failure");
       setErrorMessage("Please fill in all required fields");
-      // Don't close the dialog or reset fields on error
     }
   };
+
   const handleRecipientChange = (value: string) => {
     setRecipient(value);
     const filtered = availableUsernames.filter(username => 
@@ -251,6 +251,12 @@ export function PaymentInterface() {
 
   const handleDescriptionChange = (value: string) => {
     setDescription(value);
+    setTransactionStatus(null);
+    setErrorMessage("");
+  };
+
+  const handleItemCountChange = (value: string) => {
+    setItemCount(value);
     setTransactionStatus(null);
     setErrorMessage("");
   };
@@ -320,40 +326,40 @@ export function PaymentInterface() {
             <DialogTitle className="text-black">Send Money</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="recipient" className="text-right text-black">
-              To
-            </Label>
-            <div className="col-span-3 relative" ref={dropdownRef}>
-              <div className="flex items-center">
-                <Input
-                  id="recipient"
-                  value={recipient}
-                  onChange={(e) => handleRecipientChange(e.target.value)}
-                  onFocus={() => setIsDropdownOpen(true)}
-                  className="pr-8 text-black"
-                  placeholder="Type or select user"
-                />
-                <ChevronDown
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                />
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="recipient" className="text-right text-black">
+                To
+              </Label>
+              <div className="col-span-3 relative" ref={dropdownRef}>
+                <div className="flex items-center">
+                  <Input
+                    id="recipient"
+                    value={recipient}
+                    onChange={(e) => handleRecipientChange(e.target.value)}
+                    onFocus={() => setIsDropdownOpen(true)}
+                    className="pr-8 text-black"
+                    placeholder="Type or select user"
+                  />
+                  <ChevronDown
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  />
+                </div>
+                {isDropdownOpen && (
+                  <ul className="absolute z-50 w-full bg-white border border-gray-200 rounded-md mt-1 max-h-60 overflow-auto">
+                    {filteredUsers.map((user) => (
+                      <li
+                        key={user.value}
+                        className="px-3 py-3 text-sm hover:bg-gray-100 cursor-pointer text-black"
+                        onClick={() => handleSelectUser(user)}
+                      >
+                        {user.label}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-              {isDropdownOpen && (
-                <ul className="absolute z-50 w-full bg-white border border-gray-200 rounded-md mt-1 max-h-60 overflow-auto">
-                  {filteredUsers.map((user) => (
-                    <li
-                      key={user.value}
-                      className="px-3 py-3 text-sm hover:bg-gray-100 cursor-pointer text-black"
-                      onClick={() => handleSelectUser(user)}
-                    >
-                      {user.label}
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
-          </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="amount" className="text-right text-black">
                 Amount
@@ -376,6 +382,19 @@ export function PaymentInterface() {
                 onChange={(e) => handleDescriptionChange(e.target.value)}
                 className="col-span-3 text-black"
                 placeholder="What's it for?"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="itemCount" className="text-right text-black">
+                Item Count
+              </Label>
+              <Input
+                id="itemCount"
+                type="number"
+                value={itemCount}
+                onChange={(e) => handleItemCountChange(e.target.value)}
+                className="col-span-3 text-black"
+                min="1"
               />
             </div>
           </div>
@@ -403,9 +422,9 @@ export function PaymentInterface() {
           )}
           <Button
             onClick={handleSendMoney}
-            disabled={!amount || !recipient || !description}
+            disabled={!amount || !recipient || !description || !itemCount}
             className={`${
-              !amount || !recipient || !description
+              !amount || !recipient || !description || !itemCount
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-primary text-primary-foreground hover:bg-primary/90"
             }`}
@@ -460,7 +479,9 @@ export function PaymentInterface() {
                           ? `Sent to ${transaction.counterparty}`
                           : `Received from ${transaction.counterparty}`}
                       </p>
-                      <p className="text-sm text-gray-500">{transaction.description}</p>
+                      <p className="text-sm text-gray-500">
+                        {transaction.description} 
+                      </p>
                       <p className="text-sm text-gray-500">{new Date(transaction.timestamp).toLocaleString()}</p>
                     </div>
                   </div>
