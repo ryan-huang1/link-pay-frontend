@@ -76,7 +76,7 @@ export default function Component() {
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
-
+  
     try {
       const response = await fetch(`${BASE_URL}/auth/login`, {
         method: 'POST',
@@ -85,20 +85,23 @@ export default function Component() {
         },
         body: JSON.stringify({ username, password }),
       });
-
+  
       if (!response.ok) {
         throw new Error('Login failed');
       }
-
+  
       const data = await response.json();
       
-      setCookie('token', data.token, { maxAge: 3600, path: '/' }); // Expires in 1 hour
-      setCookie('user_id', data.user_id.toString(), { maxAge: 3600, path: '/' });
-      setCookie('is_admin', data.is_admin.toString(), { maxAge: 3600, path: '/' });
-
+      setCookie('token', data.token, { path: '/' });
+      setCookie('user_id', data.user_id.toString(), { path: '/' });
+      setCookie('is_admin', data.is_admin.toString(), { path: '/' });
+      setCookie('is_business', data.is_business.toString(), { path: '/' });
+  
       console.log('Login successful');
       if (data.is_admin) {
         window.location.href = '/admin';
+      } else if (data.is_business) {
+        window.location.href = '/business';
       } else {
         window.location.href = '/profile';
       }
@@ -106,7 +109,7 @@ export default function Component() {
       setError('Login failed. Please check your credentials and try again.');
     }
   };
-
+  
   const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
