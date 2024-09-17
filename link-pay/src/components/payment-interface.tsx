@@ -65,7 +65,7 @@ export function PaymentInterface() {
   };
 
   const redirectToBank = () => {
-    window.location.href = 'https://bank.ryanhuang.xyz/';
+    window.location.href = '/';
   };
 
   const fetchUserProfile = async () => {
@@ -85,6 +85,13 @@ export function PaymentInterface() {
         throw new Error('Failed to fetch user profile');
       }
       const data = await response.json();
+      
+      // Check if the user is not an admin and not a business
+      if (data.is_admin || data.is_business) {
+        redirectToBank();
+        return;
+      }
+      
       setBalance(data.balance);
       setUserName(data.username);
     } catch (error) {
