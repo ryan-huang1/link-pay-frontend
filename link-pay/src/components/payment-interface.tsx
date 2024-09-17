@@ -28,7 +28,7 @@ interface Transaction {
   amount: number;
   description: string;
   timestamp: string;
-  item_count: number;  // New field
+  item_count: number;
 }
 
 interface User {
@@ -42,7 +42,7 @@ export function PaymentInterface() {
   const [amount, setAmount] = useState<string>("");
   const [recipient, setRecipient] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [itemCount, setItemCount] = useState<string>("1");  // New state
+  const [itemCount, setItemCount] = useState<string>("1");
   const [userName, setUserName] = useState<string>("");
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -57,6 +57,7 @@ export function PaymentInterface() {
   const [availableUsernames, setAvailableUsernames] = useState<string[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isRegularUser, setIsRegularUser] = useState<boolean | null>(null);
 
   const getCookie = (name: string): string | undefined => {
     const value = `; ${document.cookie}`;
@@ -64,16 +65,16 @@ export function PaymentInterface() {
     if (parts.length === 2) return parts.pop()?.split(';').shift();
   };
 
-  const redirectToBank = () => {
+  const redirectToBank = useCallback(() => {
     window.location.href = '/';
-  };
+  }, []);
 
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     try {
       const token = getCookie('token');
       if (!token) {
         redirectToBank();
-        return;
+        return false;
       }
       console.log('Token:', token); // Debug log
       const response = await fetch(`${BASE_URL}/user/profile`, {
@@ -88,25 +89,28 @@ export function PaymentInterface() {
       
       // Check if the user is not an admin and not a business
       if (data.is_admin || data.is_business) {
+        setIsRegularUser(false);
         redirectToBank();
-        return;
+        return false;
       }
       
+      setIsRegularUser(true);
       setBalance(data.balance);
       setUserName(data.username);
+      return true;
     } catch (error) {
       setError('Failed to load user profile');
       console.error('Error fetching user profile:', error);
+      return false;
     }
-  };
+  }, [redirectToBank]);
 
   const fetchTransactions = useCallback(async () => {
-    setIsRefreshing(true);
     try {
       const token = getCookie('token');
       if (!token) {
         redirectToBank();
-        return;
+        return false;
       }
       const response = await fetch(`${BASE_URL}/transaction/history`, {
         headers: {
@@ -119,22 +123,20 @@ export function PaymentInterface() {
       const data = await response.json();
       setTransactions(data.transactions);
       setLastUpdated(new Date());
+      return true;
     } catch (error) {
       console.error('Error fetching transactions:', error);
       setError('Failed to load transactions');
-    } finally {
-      setTimeout(() => {
-        setIsRefreshing(false);
-      }, 1000);
+      return false;
     }
-  }, []);
+  }, [redirectToBank]);
 
   const fetchUsernames = useCallback(async () => {
     try {
       const token = getCookie('token');
       if (!token) {
         redirectToBank();
-        return;
+        return false;
       }
       const response = await fetch(`${BASE_URL}/user/usernames`, {
         headers: {
@@ -147,29 +149,43 @@ export function PaymentInterface() {
       const data = await response.json();
       setAvailableUsernames(data.usernames);
       setFilteredUsers(data.usernames.map((username: string) => ({ value: username, label: username })));
+      return true;
     } catch (error) {
       console.error('Error fetching usernames:', error);
       setError('Failed to load usernames');
+      return false;
     }
-  }, []);
+  }, [redirectToBank]);
 
-  const refreshData = useCallback(async () => {
+  const initializeData = useCallback(async () => {
     setIsLoading(true);
-    await Promise.all([fetchUserProfile(), fetchTransactions(), fetchUsernames()]);
+    setError("");
+    
+    const profileSuccess = await fetchUserProfile();
+    if (!profileSuccess) {
+      setIsLoading(false);
+      return;
+    }
+    
+    const [transactionsSuccess, usernamesSuccess] = await Promise.all([
+      fetchTransactions(),
+      fetchUsernames()
+    ]);
+
+    if (!transactionsSuccess || !usernamesSuccess) {
+      setError("Failed to load some data. Please refresh the page.");
+    }
+
     setIsLoading(false);
-  }, [fetchTransactions, fetchUsernames]);
+    setIsInitialized(true);
+  }, [fetchUserProfile, fetchTransactions, fetchUsernames]);
 
   useEffect(() => {
-    const initializeData = async () => {
-      await refreshData();
-      setIsInitialized(true);
-    };
-
     initializeData();
-  }, [refreshData]);
+  }, [initializeData]);
 
   useEffect(() => {
-    if (!isInitialized) return;
+    if (!isInitialized || !isRegularUser) return;
 
     const usernameRefreshInterval = setInterval(fetchUsernames, 60000);
     const transactionRefreshInterval = setInterval(fetchTransactions, 20000);
@@ -178,7 +194,7 @@ export function PaymentInterface() {
       clearInterval(usernameRefreshInterval);
       clearInterval(transactionRefreshInterval);
     };
-  }, [isInitialized, fetchUsernames, fetchTransactions]);
+  }, [isInitialized, isRegularUser, fetchUsernames, fetchTransactions]);
 
   const handleSendMoney = async () => {
     if (amount && recipient && description && itemCount) {
@@ -277,7 +293,10 @@ export function PaymentInterface() {
 
   const handleRefreshClick = () => {
     if (!isRefreshing) {
-      fetchTransactions();
+      setIsRefreshing(true);
+      fetchTransactions().finally(() => {
+        setTimeout(() => setIsRefreshing(false), 1000);
+      });
     }
   };
 
@@ -302,8 +321,12 @@ export function PaymentInterface() {
     }
   }, [isRefreshing]);
 
-  if (isLoading) {
+  if (isLoading || !isInitialized || isRegularUser === null) {
     return <div>Loading...</div>;
+  }
+
+  if (!isRegularUser) {
+    return null;
   }
 
   if (error) {
@@ -521,24 +544,6 @@ export function PaymentInterface() {
             transform: rotate(360deg);
           }
           to {
-            transform: rotate(0deg);
-          }
-        }
-
-        @keyframes spin {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
-        }
-
-        @keyframes spin-back {
-          0% {
-            transform: rotate(360deg);
-          }
-          100% {
             transform: rotate(0deg);
           }
         }
