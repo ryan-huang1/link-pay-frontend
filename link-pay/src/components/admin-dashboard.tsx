@@ -122,7 +122,7 @@ export default function AdminDashboard() {
 
   const SidebarContent = () => (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold mb-6">Admin Dashboard</h2>
+      <h2 className="text-2xl font-bold mb-6 text-black">Admin Dashboard</h2>
       <nav className="space-y-2">
         {["users", "businesses", "transactions", "admin-logs"].map((tab) => (
           <button
@@ -132,11 +132,11 @@ export default function AdminDashboard() {
             }`}
             onClick={() => setActiveTab(tab)}
           >
-            {tab === "users" ? <Users size={20} /> : 
-             tab === "businesses" ? <Building2 size={20} /> : 
-             tab === "transactions" ? <CreditCard size={20} /> :
-             <ClipboardList size={20} />}
-            <span>{tab.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>
+            {tab === "users" ? <Users size={20} color="black" /> : 
+             tab === "businesses" ? <Building2 size={20} color="black" /> : 
+             tab === "transactions" ? <CreditCard size={20} color="black" /> :
+             <ClipboardList size={20} color="black" />}
+            <span style={{ color: "black" }}>{tab.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>
           </button>
         ))}
       </nav>
@@ -150,7 +150,7 @@ export default function AdminDashboard() {
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="lg:hidden">
-                <Menu size={24} />
+                <Menu size={24} color="black" />
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-white">
@@ -159,15 +159,15 @@ export default function AdminDashboard() {
               </SheetHeader>
             </SheetContent>
           </Sheet>
-          <h1 className="text-xl font-bold">Dashboard</h1>
+          <h1 className="text-xl font-bold text-black">Dashboard</h1>
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline" size="icon" className="rounded-full">
-            <RefreshCw size={20} />
+            <RefreshCw size={20} color="black" />
             <span className="sr-only">Refresh</span>
           </Button>
           <Button variant="outline" size="icon" className="rounded-full" onClick={handleLogout}>
-            <LogOut size={20} />
+            <LogOut size={20} color="black" />
             <span className="sr-only">Logout</span>
           </Button>
         </div>
