@@ -361,15 +361,15 @@ export function PaymentInterface() {
     <div className="max-w-md mx-auto p-4 space-y-4">
       {/* Logout Button */}
       <div className="flex justify-end">
-      <div className="flex justify-end mb-1">
-  <Button
-    variant="ghost"
-    onClick={handleLogout}
-    className="text-sm text-gray-600 hover:text-gray-800 pb-0"
-  >
-    Logout
-  </Button>
-</div>
+        <div className="flex justify-end mb-1">
+          <Button
+            variant="ghost"
+            onClick={handleLogout}
+            className="text-sm text-gray-600 hover:text-gray-800 pb-0"
+          >
+            Logout
+          </Button>
+        </div>
       </div>
 
       <Card className="mt-0">
@@ -443,13 +443,18 @@ export function PaymentInterface() {
               <Label htmlFor="description" className="text-right text-black">
                 Description
               </Label>
-              <Input
+              {/* Replace Input with Select Dropdown */}
+              <select
                 id="description"
                 value={description}
                 onChange={(e) => handleDescriptionChange(e.target.value)}
-                className="col-span-3 text-black"
-                placeholder="What's it for?"
-              />
+                className="col-span-3 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-black focus:outline-none focus:ring-primary focus:border-primary"
+              >
+                <option value="" disabled>Select description</option>
+                <option value="Service">Service</option>
+                <option value="Goods">Goods</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="itemCount" className="text-right text-black">
