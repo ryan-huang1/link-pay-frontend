@@ -217,9 +217,9 @@ export function PaymentInterface() {
             item_count: parseInt(itemCount),
           }),
         });
-
+  
         const data = await response.json();
-
+  
         if (response.ok) {
           setTransactionStatus("success");
           setBalance(prevBalance => prevBalance - parseFloat(amount));
@@ -448,25 +448,17 @@ export function PaymentInterface() {
               <Label htmlFor="description" className="text-right text-black">
                 Description
               </Label>
-              <div className="col-span-3 relative">
-                {/* Custom Styled Select */}
-                <select
-                  id="description"
-                  value={description}
-                  onChange={(e) => handleDescriptionChange(e.target.value)}
-                  className="block w-full pr-8 text-black bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                  placeholder="Select description"
-                >
-                  <option value="" disabled>Select description</option>
-                  <option value="Service">Service</option>
-                  <option value="Goods">Goods</option>
-                  <option value="Other">Other</option>
-                </select>
-                {/* ChevronDown Icon to mimic the "To" dropdown */}
-                <ChevronDown
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none"
-                />
-              </div>
+              <select
+                id="description"
+                value={description}
+                onChange={(e) => handleDescriptionChange(e.target.value)}
+                className="col-span-3 text-black block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:outline-none focus:ring-primary focus:border-primary"
+              >
+                <option value="" disabled>Select description</option>
+                <option value="Service">Service</option>
+                <option value="Goods">Goods</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
 
             {/* Item Count Field */}
