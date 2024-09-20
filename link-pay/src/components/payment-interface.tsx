@@ -373,7 +373,7 @@ export function PaymentInterface() {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 mt-0">
           <CardTitle>Your Balance</CardTitle>
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-600">@{userName}</span>
