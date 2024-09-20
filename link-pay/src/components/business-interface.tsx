@@ -191,6 +191,27 @@ export function BusinessInterface() {
     }
   }, [isRefreshing]);
 
+  // Logout Handler
+  const handleLogout = () => {
+    // Function to delete a cookie by name
+    const deleteCookie = (name: string) => {
+      document.cookie = `${name}=; Max-Age=0; path=/;`;
+    };
+
+    // Get all cookies
+    const cookies = document.cookie.split("; ");
+
+    // Delete each cookie
+    cookies.forEach(cookie => {
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
+      deleteCookie(name);
+    });
+
+    // Redirect to home page
+    redirectToBank();
+  };
+
   if (isLoading || !isInitialized || isBusinessAccount === null) {
     return <div>Loading...</div>;
   }
@@ -205,6 +226,17 @@ export function BusinessInterface() {
 
   return (
     <div className="max-w-md mx-auto p-4 space-y-4">
+      {/* Logout Button */}
+      <div className="flex justify-end">
+        <Button
+          variant="ghost"
+          onClick={handleLogout}
+          className="text-gray-600 hover:text-gray-800"
+        >
+          Logout
+        </Button>
+      </div>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>Your Balance</CardTitle>
