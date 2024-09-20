@@ -228,14 +228,15 @@ export function BusinessInterface() {
     <div className="max-w-md mx-auto p-4 space-y-4">
       {/* Logout Button */}
       <div className="flex justify-end">
-      <Button
-          variant="secondary" // Changed variant to "secondary" for a less prominent look
-          size="sm" // Make the button smaller
-          onClick={handleLogout}
-          className="bg-gray-500 text-white hover:bg-gray-600 transition-colors"
-        >
-          Logout
-        </Button>
+      <div className="flex justify-end mb-1">
+  <Button
+    variant="ghost"
+    onClick={handleLogout}
+    className="text-sm text-gray-600 hover:text-gray-800"
+  >
+    Logout
+  </Button>
+</div>
       </div>
 
       <Card>
