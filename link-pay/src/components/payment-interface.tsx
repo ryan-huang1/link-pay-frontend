@@ -393,6 +393,7 @@ export function PaymentInterface() {
             <DialogTitle className="text-black">Send Money</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            {/* Recipient Field */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="recipient" className="text-right text-black">
                 To
@@ -427,6 +428,8 @@ export function PaymentInterface() {
                 )}
               </div>
             </div>
+
+            {/* Amount Field */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="amount" className="text-right text-black">
                 Amount
@@ -439,16 +442,17 @@ export function PaymentInterface() {
                 className="col-span-3 text-black"
               />
             </div>
+
+            {/* Description Dropdown */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="description" className="text-right text-black">
                 Description
               </Label>
-              {/* Replace Input with Select Dropdown */}
               <select
                 id="description"
                 value={description}
                 onChange={(e) => handleDescriptionChange(e.target.value)}
-                className="col-span-3 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-black focus:outline-none focus:ring-primary focus:border-primary"
+                className="col-span-3 text-black block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:outline-none focus:ring-primary focus:border-primary"
               >
                 <option value="" disabled>Select description</option>
                 <option value="Service">Service</option>
@@ -456,6 +460,8 @@ export function PaymentInterface() {
                 <option value="Other">Other</option>
               </select>
             </div>
+
+            {/* Item Count Field */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="itemCount" className="text-right text-black">
                 Item Count
