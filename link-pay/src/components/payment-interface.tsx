@@ -365,7 +365,7 @@ export function PaymentInterface() {
   <Button
     variant="ghost"
     onClick={handleLogout}
-    className="text-sm text-gray-600 hover:text-gray-800"
+    className="text-sm text-gray-600 hover:text-gray-800 p-0"
   >
     Logout
   </Button>
