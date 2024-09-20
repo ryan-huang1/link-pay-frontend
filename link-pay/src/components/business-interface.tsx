@@ -232,14 +232,14 @@ export function BusinessInterface() {
   <Button
     variant="ghost"
     onClick={handleLogout}
-    className="text-sm text-gray-600 hover:text-gray-800"
+    className="text-sm text-gray-600 hover:text-gray-800 pb-0"
   >
     Logout
   </Button>
 </div>
       </div>
 
-      <Card>
+      <Card className="mt-0">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>Your Balance</CardTitle>
           <div className="flex items-center space-x-2">

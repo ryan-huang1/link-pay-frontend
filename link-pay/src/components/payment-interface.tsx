@@ -372,7 +372,7 @@ export function PaymentInterface() {
 </div>
       </div>
 
-      <Card>
+      <Card className="mt-0">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>Your Balance</CardTitle>
           <div className="flex items-center space-x-2">
