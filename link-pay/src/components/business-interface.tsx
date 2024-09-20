@@ -229,9 +229,9 @@ export function BusinessInterface() {
       {/* Logout Button */}
       <div className="flex justify-end">
         <Button
-          variant="ghost"
+          variant="destructive" // Changed from "ghost" to "destructive"
           onClick={handleLogout}
-          className="text-gray-600 hover:text-gray-800"
+          className="bg-red-500 text-white hover:bg-red-600 transition-colors"
         >
           Logout
         </Button>

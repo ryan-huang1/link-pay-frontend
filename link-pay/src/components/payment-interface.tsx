@@ -321,25 +321,28 @@ export function PaymentInterface() {
     }
   }, [isRefreshing]);
 
-  // Logout Handler
+  // Enhanced Logout Handler with Confirmation Prompt
   const handleLogout = () => {
-    // Function to delete a cookie by name
-    const deleteCookie = (name: string) => {
-      document.cookie = `${name}=; Max-Age=0; path=/;`;
-    };
+    const confirmLogout = window.confirm("Are you sure you want to logout?");
+    if (confirmLogout) {
+      // Function to delete a cookie by name
+      const deleteCookie = (name: string) => {
+        document.cookie = `${name}=; Max-Age=0; path=/;`;
+      };
 
-    // Get all cookies
-    const cookies = document.cookie.split("; ");
+      // Get all cookies
+      const cookies = document.cookie.split("; ");
 
-    // Delete each cookie
-    cookies.forEach(cookie => {
-      const eqPos = cookie.indexOf("=");
-      const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
-      deleteCookie(name);
-    });
+      // Delete each cookie
+      cookies.forEach(cookie => {
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
+        deleteCookie(name);
+      });
 
-    // Redirect to home page
-    redirectToBank();
+      // Redirect to home page
+      redirectToBank();
+    }
   };
 
   if (isLoading || !isInitialized || isRegularUser === null) {
@@ -359,9 +362,9 @@ export function PaymentInterface() {
       {/* Logout Button */}
       <div className="flex justify-end">
         <Button
-          variant="ghost"
+          variant="destructive" // Changed from "ghost" to "destructive"
           onClick={handleLogout}
-          className="text-gray-600 hover:text-gray-800"
+          className="bg-red-500 text-white hover:bg-red-600 transition-colors"
         >
           Logout
         </Button>
