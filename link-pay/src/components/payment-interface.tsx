@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, ChangeEvent } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -453,9 +453,8 @@ export function PaymentInterface() {
                 <select
                   id="description"
                   value={description}
-                  onChange={(e) => handleDescriptionChange(e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) => handleDescriptionChange(e.target.value)}
                   className="block w-full pr-8 text-black bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                  placeholder="Select description"
                 >
                   <option value="" disabled>Select description</option>
                   <option value="Service">Service</option>
