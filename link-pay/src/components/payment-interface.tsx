@@ -58,6 +58,7 @@ export function PaymentInterface() {
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isRegularUser, setIsRegularUser] = useState<boolean | null>(null);
+  const [isSendButtonDisabled, setIsSendButtonDisabled] = useState(false);
 
   const getCookie = (name: string): string | undefined => {
     const value = `; ${document.cookie}`;
@@ -216,14 +217,16 @@ export function PaymentInterface() {
             item_count: parseInt(itemCount),
           }),
         });
-  
+
         const data = await response.json();
-  
+
         if (response.ok) {
           setTransactionStatus("success");
           setBalance(prevBalance => prevBalance - parseFloat(amount));
           await fetchTransactions();
+          setIsSendButtonDisabled(true);
           
+          // Close the dialog after 1 second
           setTimeout(() => {
             setIsOpen(false);
             setAmount("");
@@ -232,7 +235,7 @@ export function PaymentInterface() {
             setItemCount("1");
             setTransactionStatus(null);
             setErrorMessage("");
-          }, 3000);
+          }, 1000);
         } else {
           setTransactionStatus("failure");
           if (data.error === 'Amount must be at least $0.01') {
@@ -375,122 +378,132 @@ export function PaymentInterface() {
         </CardContent>
       </Card>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>
-          <Button className="w-full">Send Money</Button>
-        </DialogTrigger>
-        <DialogContent className="bg-white text-black">
-          <DialogHeader>
-            <DialogTitle className="text-black">Send Money</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="recipient" className="text-right text-black">
-                To
-              </Label>
-              <div className="col-span-3 relative" ref={dropdownRef}>
-                <div className="flex items-center">
-                  <Input
-                    id="recipient"
-                    value={recipient}
-                    onChange={(e) => handleRecipientChange(e.target.value)}
-                    onFocus={() => setIsDropdownOpen(true)}
-                    className="pr-8 text-black"
-                    placeholder="Type or select user"
-                  />
-                  <ChevronDown
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  />
-                </div>
-                {isDropdownOpen && (
-                  <ul className="absolute z-50 w-full bg-white border border-gray-200 rounded-md mt-1 max-h-60 overflow-auto">
-                    {filteredUsers.map((user) => (
-                      <li
-                        key={user.value}
-                        className="px-3 py-3 text-sm hover:bg-gray-100 cursor-pointer text-black"
-                        onClick={() => handleSelectUser(user)}
-                      >
-                        {user.label}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+          <Dialog 
+      open={isOpen} 
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (open) {
+          setIsSendButtonDisabled(false);
+          setTransactionStatus(null);
+          setErrorMessage("");
+        }
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button className="w-full">Send Money</Button>
+      </DialogTrigger>
+      <DialogContent className="bg-white text-black">
+        <DialogHeader>
+          <DialogTitle className="text-black">Send Money</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="recipient" className="text-right text-black">
+              To
+            </Label>
+            <div className="col-span-3 relative" ref={dropdownRef}>
+              <div className="flex items-center">
+                <Input
+                  id="recipient"
+                  value={recipient}
+                  onChange={(e) => handleRecipientChange(e.target.value)}
+                  onFocus={() => setIsDropdownOpen(true)}
+                  className="pr-8 text-black"
+                  placeholder="Type or select user"
+                />
+                <ChevronDown
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                />
               </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="amount" className="text-right text-black">
-                Amount
-              </Label>
-              <Input
-                id="amount"
-                type="number"
-                value={amount}
-                onChange={(e) => handleAmountChange(e.target.value)}
-                className="col-span-3 text-black"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right text-black">
-                Description
-              </Label>
-              <Input
-                id="description"
-                value={description}
-                onChange={(e) => handleDescriptionChange(e.target.value)}
-                className="col-span-3 text-black"
-                placeholder="What's it for?"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="itemCount" className="text-right text-black">
-                Item Count
-              </Label>
-              <Input
-                id="itemCount"
-                type="number"
-                value={itemCount}
-                onChange={(e) => handleItemCountChange(e.target.value)}
-                className="col-span-3 text-black"
-                min="1"
-              />
+              {isDropdownOpen && (
+                <ul className="absolute z-50 w-full bg-white border border-gray-200 rounded-md mt-1 max-h-60 overflow-auto">
+                  {filteredUsers.map((user) => (
+                    <li
+                      key={user.value}
+                      className="px-3 py-3 text-sm hover:bg-gray-100 cursor-pointer text-black"
+                      onClick={() => handleSelectUser(user)}
+                    >
+                      {user.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
-          {transactionStatus && (
-            <Alert
-              variant={transactionStatus === "success" ? "default" : "destructive"}
-              className={`${
-                transactionStatus === "success" ? "bg-green-50 border-green-200 text-green-800" : "bg-red-50 border-red-200 text-red-800"
-              }`}
-            >
-              {transactionStatus === "success" ? (
-                <CheckCircle className="h-4 w-4 text-green-600" />
-              ) : (
-                <XCircle className="h-4 w-4 text-red-600" />
-              )}
-              <AlertTitle className={transactionStatus === "success" ? "text-green-800" : "text-red-800"}>
-                {transactionStatus === "success" ? "Success" : "Failed"}
-              </AlertTitle>
-              <AlertDescription className={transactionStatus === "success" ? "text-green-700" : "text-red-700"}>
-                {transactionStatus === "success"
-                  ? "Transaction completed successfully."
-                  : errorMessage}
-              </AlertDescription>
-            </Alert>
-          )}
-          <Button
-            onClick={handleSendMoney}
-            disabled={!amount || !recipient || !description || !itemCount}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="amount" className="text-right text-black">
+              Amount
+            </Label>
+            <Input
+              id="amount"
+              type="number"
+              value={amount}
+              onChange={(e) => handleAmountChange(e.target.value)}
+              className="col-span-3 text-black"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="description" className="text-right text-black">
+              Description
+            </Label>
+            <Input
+              id="description"
+              value={description}
+              onChange={(e) => handleDescriptionChange(e.target.value)}
+              className="col-span-3 text-black"
+              placeholder="What's it for?"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="itemCount" className="text-right text-black">
+              Item Count
+            </Label>
+            <Input
+              id="itemCount"
+              type="number"
+              value={itemCount}
+              onChange={(e) => handleItemCountChange(e.target.value)}
+              className="col-span-3 text-black"
+              min="1"
+            />
+          </div>
+        </div>
+        {transactionStatus && (
+          <Alert
+            variant={transactionStatus === "success" ? "default" : "destructive"}
             className={`${
-              !amount || !recipient || !description || !itemCount
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-primary text-primary-foreground hover:bg-primary/90"
+              transactionStatus === "success" ? "bg-green-50 border-green-200 text-green-800" : "bg-red-50 border-red-200 text-red-800"
             }`}
           >
-            Send
-          </Button>
-        </DialogContent>
-      </Dialog>
+            {transactionStatus === "success" ? (
+              <CheckCircle className="h-4 w-4 text-green-600" />
+            ) : (
+              <XCircle className="h-4 w-4 text-red-600" />
+            )}
+            <AlertTitle className={transactionStatus === "success" ? "text-green-800" : "text-red-800"}>
+              {transactionStatus === "success" ? "Success" : "Failed"}
+            </AlertTitle>
+            <AlertDescription className={transactionStatus === "success" ? "text-green-700" : "text-red-700"}>
+              {transactionStatus === "success"
+                ? "Transaction completed successfully."
+                : errorMessage}
+            </AlertDescription>
+          </Alert>
+        )}
+        <Button
+          onClick={handleSendMoney}
+          disabled={!amount || !recipient || !description || !itemCount || isSendButtonDisabled}
+          className={`${
+            !amount || !recipient || !description || !itemCount || isSendButtonDisabled
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-primary text-primary-foreground hover:bg-primary/90"
+          }`}
+        >
+          Send
+        </Button>
+      </DialogContent>
+    </Dialog>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
