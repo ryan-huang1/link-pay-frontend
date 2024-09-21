@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowUpRight, ArrowDownLeft, RefreshCw } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, ChevronDown, CheckCircle, XCircle, RefreshCw, LogOut } from "lucide-react";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.1.10:80';
 console.log('BASE_URL:', BASE_URL); // Debug log
@@ -226,17 +226,17 @@ export function BusinessInterface() {
 
   return (
     <div className="max-w-md mx-auto p-4 space-y-4">
-      {/* Logout Button */}
-      <div className="flex justify-end">
-      <div className="flex justify-end mb-1">
-  <Button
-    variant="ghost"
-    onClick={handleLogout}
-    className="text-sm text-gray-600 hover:text-gray-800 pb-0"
-  >
-    Logout
-  </Button>
-</div>
+      <div className="flex justify-between items-start mb-4">
+        <h2 className="text-2xl font-bold text-gray-700">Business Account</h2>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleLogout}
+          className="text-sm text-gray-700 bg-gray-100"
+        >
+          <LogOut className="mr-2 h-4 w-4 text-gray-700" />
+          Logout
+        </Button>
       </div>
 
       <Card className="mt-0">

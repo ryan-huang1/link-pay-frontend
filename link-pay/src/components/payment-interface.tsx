@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowUpRight, ArrowDownLeft, ChevronDown, CheckCircle, XCircle, RefreshCw } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, ChevronDown, CheckCircle, XCircle, RefreshCw, LogOut } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 type TransactionStatus = "success" | "failure" | null;
@@ -87,7 +87,6 @@ export function PaymentInterface() {
       }
       const data = await response.json();
       
-      // Check if the user is not an admin and not a business
       if (data.is_admin || data.is_business) {
         setIsRegularUser(false);
         redirectToBank();
@@ -321,28 +320,20 @@ export function PaymentInterface() {
     }
   }, [isRefreshing]);
 
-  // Enhanced Logout Handler with Confirmation Prompt
   const handleLogout = () => {
-    const confirmLogout = window.confirm("Are you sure you want to logout?");
-    if (confirmLogout) {
-      // Function to delete a cookie by name
-      const deleteCookie = (name: string) => {
-        document.cookie = `${name}=; Max-Age=0; path=/;`;
-      };
+    const deleteCookie = (name: string) => {
+      document.cookie = `${name}=; Max-Age=0; path=/;`;
+    };
 
-      // Get all cookies
-      const cookies = document.cookie.split("; ");
+    const cookies = document.cookie.split("; ");
 
-      // Delete each cookie
-      cookies.forEach(cookie => {
-        const eqPos = cookie.indexOf("=");
-        const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
-        deleteCookie(name);
-      });
+    cookies.forEach(cookie => {
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
+      deleteCookie(name);
+    });
 
-      // Redirect to home page
-      redirectToBank();
-    }
+    redirectToBank();
   };
 
   if (isLoading || !isInitialized || isRegularUser === null) {
@@ -359,20 +350,20 @@ export function PaymentInterface() {
 
   return (
     <div className="max-w-md mx-auto p-4 space-y-4">
-      {/* Logout Button */}
-      <div className="flex justify-end">
-      <div className="flex justify-end mb-1">
-  <Button
-    variant="ghost"
-    onClick={handleLogout}
-    className="text-sm text-gray-600 hover:text-gray-800 pb-0"
-  >
-    Logout
-  </Button>
-</div>
+      <div className="flex justify-between items-start mb-4">
+        <h2 className="text-2xl font-bold text-gray-700">Personal Account</h2>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleLogout}
+          className="text-sm text-gray-700 bg-gray-100"
+        >
+          <LogOut className="mr-2 h-4 w-4 text-gray-700" />
+          Logout
+        </Button>
       </div>
 
-      <Card className="mt-0">
+      <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>Your Balance</CardTitle>
           <div className="flex items-center space-x-2">
