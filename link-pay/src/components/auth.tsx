@@ -133,7 +133,7 @@ export default function Component() {
         body: JSON.stringify({ 
           username: generatedUsername, 
           password, 
-          registration_code: registrationCode 
+          registration_code: registrationCode.toLowerCase() // Convert to lowercase here
         }),
       });
 
