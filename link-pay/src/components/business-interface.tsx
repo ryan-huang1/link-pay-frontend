@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowUpRight, ArrowDownLeft, ChevronDown, CheckCircle, XCircle, RefreshCw, LogOut } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, RefreshCw, LogOut } from "lucide-react";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.86.139:80';
 console.log('BASE_URL:', BASE_URL); // Debug log
@@ -19,11 +19,6 @@ interface Transaction {
   item_count: number;
 }
 
-interface User {
-  value: string;
-  label: string;
-}
-
 export function BusinessInterface() {
   const [balance, setBalance] = useState<number>(0);
   const [userName, setUserName] = useState<string>("");
@@ -33,8 +28,6 @@ export function BusinessInterface() {
   const [error, setError] = useState<string>("");
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const refreshIconRef = useRef<SVGSVGElement>(null);
-  const [availableUsernames, setAvailableUsernames] = useState<string[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isBusinessAccount, setIsBusinessAccount] = useState<boolean | null>(null);
 
@@ -109,32 +102,6 @@ export function BusinessInterface() {
     }
   }, [redirectToBank]);
 
-  const fetchUsernames = useCallback(async () => {
-    try {
-      const token = getCookie('token');
-      if (!token) {
-        redirectToBank();
-        return false;
-      }
-      const response = await fetch(`${BASE_URL}/user/usernames`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch usernames');
-      }
-      const data = await response.json();
-      setAvailableUsernames(data.usernames);
-      setFilteredUsers(data.usernames.map((username: string) => ({ value: username, label: username })));
-      return true;
-    } catch (error) {
-      console.error('Error fetching usernames:', error);
-      setError('Failed to load usernames');
-      return false;
-    }
-  }, [redirectToBank]);
-
   const initializeData = useCallback(async () => {
     setIsLoading(true);
     setError("");
@@ -145,18 +112,15 @@ export function BusinessInterface() {
       return;
     }
     
-    const [transactionsSuccess, usernamesSuccess] = await Promise.all([
-      fetchTransactions(),
-      fetchUsernames()
-    ]);
+    const transactionsSuccess = await fetchTransactions();
 
-    if (!transactionsSuccess || !usernamesSuccess) {
-      setError("Failed to load some data. Please refresh the page.");
+    if (!transactionsSuccess) {
+      setError("Failed to load transactions. Please refresh the page.");
     }
 
     setIsLoading(false);
     setIsInitialized(true);
-  }, [fetchUserProfile, fetchTransactions, fetchUsernames]);
+  }, [fetchUserProfile, fetchTransactions]);
 
   useEffect(() => {
     initializeData();
@@ -165,14 +129,12 @@ export function BusinessInterface() {
   useEffect(() => {
     if (!isInitialized || !isBusinessAccount) return;
 
-    const usernameRefreshInterval = setInterval(fetchUsernames, 60000);
     const transactionRefreshInterval = setInterval(fetchTransactions, 20000);
 
     return () => {
-      clearInterval(usernameRefreshInterval);
       clearInterval(transactionRefreshInterval);
     };
-  }, [isInitialized, isBusinessAccount, fetchUsernames, fetchTransactions]);
+  }, [isInitialized, isBusinessAccount, fetchTransactions]);
 
   const handleRefreshClick = useCallback(() => {
     if (!isRefreshing) {
