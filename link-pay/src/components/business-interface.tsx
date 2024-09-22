@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ArrowUpRight, ArrowDownLeft, ChevronDown, CheckCircle, XCircle, RefreshCw, LogOut } from "lucide-react";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.1.10:80';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.86.139:80';
 console.log('BASE_URL:', BASE_URL); // Debug log
 
 interface Transaction {

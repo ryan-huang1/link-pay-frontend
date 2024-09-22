@@ -18,7 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 type TransactionStatus = "success" | "failure" | null;
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.1.10:80';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.86.139:80';
 console.log('BASE_URL:', BASE_URL); // Debug log
 
 interface Transaction {
@@ -169,31 +169,29 @@ export function PaymentInterface() {
       return;
     }
     
-    const [transactionsSuccess, usernamesSuccess] = await Promise.all([
-      fetchTransactions(),
-      fetchUsernames()
-    ]);
+    const transactionsSuccess = await fetchTransactions();
 
-    if (!transactionsSuccess || !usernamesSuccess) {
+    if (!transactionsSuccess) {
       setError("Failed to load some data. Please refresh the page.");
     }
 
     setIsLoading(false);
     setIsInitialized(true);
-  }, [fetchUserProfile, fetchTransactions, fetchUsernames]);
+  }, [fetchUserProfile, fetchTransactions]);
+
+  useEffect(() => {
+    initializeData();
+  }, [initializeData]);
 
   useEffect(() => {
     if (!isInitialized || !isRegularUser) return;
-  
-    const usernameRefreshInterval = setInterval(fetchUsernames, 180000); // 3 minutes
+
     const transactionRefreshInterval = setInterval(fetchTransactions, 120000); // 2 minutes
-  
+
     return () => {
-      clearInterval(usernameRefreshInterval);
       clearInterval(transactionRefreshInterval);
     };
-  }, [isInitialized, isRegularUser, fetchUsernames, fetchTransactions]);
-  
+  }, [isInitialized, isRegularUser, fetchTransactions]);
 
   const handleSendMoney = async () => {
     if (amount && recipient && description && itemCount) {
@@ -302,6 +300,16 @@ export function PaymentInterface() {
     }
   };
 
+  const handleDialogOpen = useCallback(async (open: boolean) => {
+    setIsOpen(open);
+    if (open) {
+      setIsSendButtonDisabled(false);
+      setTransactionStatus(null);
+      setErrorMessage("");
+      await fetchUsernames();
+    }
+  }, [fetchUsernames]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -383,14 +391,7 @@ export function PaymentInterface() {
 
       <Dialog 
         open={isOpen} 
-        onOpenChange={(open) => {
-          setIsOpen(open);
-          if (open) {
-            setIsSendButtonDisabled(false);
-            setTransactionStatus(null);
-            setErrorMessage("");
-          }
-        }}
+        onOpenChange={handleDialogOpen}
       >
         <DialogTrigger asChild>
           <Button className="w-full">Send Money</Button>
@@ -447,12 +448,12 @@ export function PaymentInterface() {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="description" className="text-right text-black">
-  Purchase Type
-</Label>
+              <Label htmlFor="description" className="text-right text-black">
+                Purchase Type
+              </Label>
               <div className="col-span-3 relative" ref={descriptionDropdownRef}>
                 <div className="flex items-center">
-                <Input
+                  <Input
                     id="description"
                     value={description}
                     onChange={(e) => handleDescriptionChange(e.target.value)}
