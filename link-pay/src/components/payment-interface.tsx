@@ -183,20 +183,17 @@ export function PaymentInterface() {
   }, [fetchUserProfile, fetchTransactions, fetchUsernames]);
 
   useEffect(() => {
-    initializeData();
-  }, [initializeData]);
-
-  useEffect(() => {
     if (!isInitialized || !isRegularUser) return;
-
-    const usernameRefreshInterval = setInterval(fetchUsernames, 60000);
-    const transactionRefreshInterval = setInterval(fetchTransactions, 20000);
-
+  
+    const usernameRefreshInterval = setInterval(fetchUsernames, 180000); // 3 minutes
+    const transactionRefreshInterval = setInterval(fetchTransactions, 120000); // 2 minutes
+  
     return () => {
       clearInterval(usernameRefreshInterval);
       clearInterval(transactionRefreshInterval);
     };
   }, [isInitialized, isRegularUser, fetchUsernames, fetchTransactions]);
+  
 
   const handleSendMoney = async () => {
     if (amount && recipient && description && itemCount) {
