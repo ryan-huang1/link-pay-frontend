@@ -14,15 +14,13 @@ import { format } from "date-fns"
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.1.10:80';
 
-// Define types for our data
 type User = {
   id: number;
   username: string;
-  transactionCount: number;
+  transaction_count: number;
   balance: number;
 }
 
-// Update the Business type to match the API response
 type Business = {
   id: number;
   username: string;
@@ -51,16 +49,9 @@ type AdminLog = {
   timestamp: string;
 }
 
-// Mock data
-const initialUsers: User[] = [
-  { id: 1, username: "alice_j", transactionCount: 5, balance: 1250.75 },
-  { id: 2, username: "bob_smith", transactionCount: 3, balance: 850.50 },
-  { id: 3, username: "charlie_b", transactionCount: 7, balance: 3000.25 },
-]
-
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("users")
-  const [users, setUsers] = useState<User[]>(initialUsers)
+  const [users, setUsers] = useState<User[]>([])  
   const [businesses, setBusinesses] = useState<Business[]>([])
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [adminLogs, setAdminLogs] = useState<AdminLog[]>([])
@@ -103,6 +94,27 @@ export default function AdminDashboard() {
         if (!userData.is_admin) {
           throw new Error('User is not an admin');
         }
+
+        // Fetch users
+        const usersResponse = await fetch(`${BASE_URL}/admin/users`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!usersResponse.ok) {
+          throw new Error('Failed to fetch users');
+        }
+
+        const usersData = await usersResponse.json();
+        const processedUsers = usersData.users.map((user: any) => ({
+          id: user.id,
+          username: user.username,
+          transaction_count: user.transaction_count,
+          balance: user.balance
+        }));
+        setUsers(processedUsers);
 
         // Fetch stats
         const statsResponse = await fetch(`${BASE_URL}/admin/stats`, {
@@ -345,7 +357,7 @@ export default function AdminDashboard() {
                             {users.map((user) => (
                               <tr key={user.id} className="border-b">
                                 <td className="px-4 py-2">{user.username}</td>
-                                <td className="px-4 py-2">{user.transactionCount}</td>
+                                <td className="px-4 py-2">{user.transaction_count}</td>
                                 <td className="px-4 py-2">${user.balance.toFixed(2)}</td>
                                 <td className="px-4 py-2">
                                   <div className="flex space-x-2">
