@@ -513,7 +513,6 @@ export default function AdminDashboard() {
                               <th className="px-4 py-3 text-left w-1/6">From</th>
                               <th className="px-4 py-3 text-left w-1/6">To</th>
                               <th className="px-4 py-3 text-left w-1/6">Amount</th>
-                              <th className="px-4 py-3 text-left w-1/6">Description</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -523,7 +522,6 @@ export default function AdminDashboard() {
                                 <td className="px-4 py-4">{tx.sender}</td>
                                 <td className="px-4 py-4">{tx.recipient}</td>
                                 <td className="px-4 py-4">${tx.amount.toFixed(2)}</td>
-                                <td className="px-4 py-4">{tx.description}</td>
                               </tr>
                             ))}
                           </tbody>
