@@ -30,12 +30,12 @@ type Business = {
 }
 
 type Transaction = {
-  id: number;
-  from: string;
-  to: string;
+  transaction_id: number;
+  sender: string;
+  recipient: string;
   amount: number;
-  date: Date;
-  type: string;
+  description: string;
+  timestamp: string;
 }
 
 type AdminLog = {
@@ -58,17 +58,11 @@ const initialBusinesses: Business[] = [
   { id: 3, name: "Charlie's Chocolates", transactionCount: 20, revenue: 7500.00 },
 ]
 
-const initialTransactions: Transaction[] = [
-  { id: 1, from: "alice_j", to: "bob_smith", amount: 50.00, date: new Date("2023-06-01T14:30:00"), type: "transfer" },
-  { id: 2, from: "charlie_b", to: "bob_smith", amount: 25.50, date: new Date("2023-06-02T09:15:00"), type: "transfer" },
-  { id: 3, from: "bob_smith", to: "alice_j", amount: 30.00, date: new Date("2023-06-03T18:45:00"), type: "transfer" },
-]
-
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("users")
   const [users, setUsers] = useState<User[]>(initialUsers)
   const [businesses, setBusinesses] = useState<Business[]>(initialBusinesses)
-  const [transactions] = useState<Transaction[]>(initialTransactions)
+  const [transactions, setTransactions] = useState<Transaction[]>([])
   const [adminLogs, setAdminLogs] = useState<AdminLog[]>([])
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [modifyBalanceDialogOpen, setModifyBalanceDialogOpen] = useState(false)
@@ -145,17 +139,31 @@ export default function AdminDashboard() {
 
         const logsData = await logsResponse.json();
         setAdminLogs(logsData.logs);
+        // Fetch transactions
+        const transactionsResponse = await fetch(`${BASE_URL}/admin/transactions/all`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!transactionsResponse.ok) {
+          throw new Error('Failed to fetch transactions');
+        }
+
+        const transactionsData = await transactionsResponse.json();
+        setTransactions(transactionsData.transactions);
 
         setIsLoading(false);
-      } catch (error: unknown) {
+        } catch (error: unknown) {
         console.error('Error:', error);
         setError(error instanceof Error ? error.message : 'An unknown error occurred');
         setIsLoading(false);
-      }
-    };
+        }
+        };
 
-    fetchData();
-  }, []);
+        fetchData();
+        }, []);
 
   const handleError = (error: unknown) => {
     console.error('Error:', error);
@@ -501,19 +509,21 @@ export default function AdminDashboard() {
                         <table className="w-full table-fixed">
                           <thead>
                             <tr className="border-b">
-                              <th className="px-4 py-2 text-left w-1/4">Date</th>
-                              <th className="px-4 py-2 text-left w-1/4">From</th>
-                              <th className="px-4 py-2 text-left w-1/4">To</th>
-                              <th className="px-4 py-2 text-left w-1/4">Amount</th>
+                              <th className="px-4 py-3 text-left w-1/6">Timestamp</th>
+                              <th className="px-4 py-3 text-left w-1/6">From</th>
+                              <th className="px-4 py-3 text-left w-1/6">To</th>
+                              <th className="px-4 py-3 text-left w-1/6">Amount</th>
+                              <th className="px-4 py-3 text-left w-1/6">Description</th>
                             </tr>
                           </thead>
                           <tbody>
                             {transactions.map((tx) => (
-                              <tr key={tx.id} className="border-b">
-                                <td className="px-4 py-2">{formatDate(tx.date)}</td>
-                                <td className="px-4 py-2">{tx.from}</td>
-                                <td className="px-4 py-2">{tx.to}</td>
-                                <td className="px-4 py-2">${tx.amount.toFixed(2)}</td>
+                              <tr key={tx.transaction_id} className="border-b">
+                                <td className="px-4 py-4">{formatDate(tx.timestamp)}</td>
+                                <td className="px-4 py-4">{tx.sender}</td>
+                                <td className="px-4 py-4">{tx.recipient}</td>
+                                <td className="px-4 py-4">${tx.amount.toFixed(2)}</td>
+                                <td className="px-4 py-4">{tx.description}</td>
                               </tr>
                             ))}
                           </tbody>
