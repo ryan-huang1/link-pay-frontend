@@ -444,67 +444,68 @@ export default function AdminDashboard() {
                                 <td className="px-4 py-4">${business.balance.toFixed(2)}</td>
                                 <td className="px-4 py-4">
                                   <div className="flex space-x-2">
-                                    <Dialog open={modifyBalanceDialogOpen} onOpenChange={setModifyBalanceDialogOpen}>
-                                      <DialogTrigger asChild>
-                                        <Button variant="outline" size="sm" onClick={() => setSelectedItem(business)}>
-                                          <Edit3 className="h-4 w-4 mr-2" />
-                                          Modify
-                                        </Button>
-                                      </DialogTrigger>
-                                      <DialogContent>
-                                        <DialogHeader>
-                                          <DialogTitle>Modify Business Balance</DialogTitle>
-                                          <DialogDescription>
-                                            Enter the new balance for {selectedItem && 'username' in selectedItem ? selectedItem.username : ''}
-                                          </DialogDescription>
-                                        </DialogHeader>
-                                        <div className="grid gap-4 py-4">
-                                          <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="balance" className="text-right">
-                                              Balance
-                                            </Label>
-                                            <Input
-                                              id="balance"
-                                              value={newBalance}
-                                              onChange={(e) => setNewBalance(e.target.value)}
-                                              className="col-span-3"
-                                            />
-                                          </div>
+                                  <Dialog open={modifyBalanceDialogOpen} onOpenChange={setModifyBalanceDialogOpen}>
+                                    <DialogTrigger asChild>
+                                      <Button variant="outline" size="sm" onClick={() => setSelectedItem(business)}>
+                                        <Edit3 className="h-4 w-4 mr-2" />
+                                        Modify
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="bg-white">
+                                      <DialogHeader>
+                                        <DialogTitle className="text-black">Modify Business Balance</DialogTitle>
+                                        <DialogDescription>
+                                          Enter the new balance for {selectedItem && 'username' in selectedItem ? selectedItem.username : ''}
+                                        </DialogDescription>
+                                      </DialogHeader>
+                                      <div className="grid gap-4 py-4">
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                          <Label htmlFor="balance" className="text-right text-black">
+                                            Balance
+                                          </Label>
+                                          <Input
+                                            id="balance"
+                                            type="number"
+                                            value={newBalance}
+                                            onChange={(e) => setNewBalance(e.target.value)}
+                                            className="col-span-3 text-black"
+                                          />
                                         </div>
-                                        <DialogFooter>
-                                          <Button variant="default" onClick={() => setModifyBalanceDialogOpen(false)}>
-                                            Cancel
-                                          </Button>
-                                          <Button variant="outline" type="submit" onClick={handleModifyBalance}>
-                                            Save changes
-                                          </Button>
-                                        </DialogFooter>
-                                      </DialogContent>
-                                    </Dialog>
-                                    <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-                                      <DialogTrigger asChild>
-                                        <Button variant="destructive" size="sm" onClick={() => setSelectedItem(business)}>
-                                          <Trash2 className="h-4 w-4 mr-2" />
+                                      </div>
+                                      <DialogFooter>
+                                        <Button variant="default" onClick={() => setModifyBalanceDialogOpen(false)}>
+                                          Cancel
+                                        </Button>
+                                        <Button variant="outline" type="submit" onClick={handleModifyBalance} className="text-black">
+                                          Save changes
+                                        </Button>
+                                      </DialogFooter>
+                                    </DialogContent>
+                                  </Dialog>
+                                  <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                                    <DialogTrigger asChild>
+                                      <Button variant="destructive" size="sm" onClick={() => setSelectedItem(business)}>
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        Delete
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="bg-white">
+                                      <DialogHeader>
+                                        <DialogTitle className="text-black pb-2">Confirm Deletion</DialogTitle>
+                                        <DialogDescription>
+                                          Are you sure you want to delete the business {selectedItem && 'username' in selectedItem ? selectedItem.username : ''}? This action cannot be undone.
+                                        </DialogDescription>
+                                      </DialogHeader>
+                                      <DialogFooter>
+                                        <Button variant="default" onClick={() => setDeleteDialogOpen(false)}>
+                                          Cancel
+                                        </Button>
+                                        <Button variant="outline" onClick={handleDelete} className="text-black">
                                           Delete
                                         </Button>
-                                      </DialogTrigger>
-                                      <DialogContent>
-                                        <DialogHeader>
-                                          <DialogTitle>Confirm Deletion</DialogTitle>
-                                          <DialogDescription>
-                                            Are you sure you want to delete the business {selectedItem && 'username' in selectedItem ? selectedItem.username : ''}? This action cannot be undone.
-                                          </DialogDescription>
-                                        </DialogHeader>
-                                        <DialogFooter>
-                                          <Button variant="default" onClick={() => setDeleteDialogOpen(false)}>
-                                            Cancel
-                                          </Button>
-                                          <Button variant="outline" onClick={handleDelete}>
-                                            Delete
-                                          </Button>
-                                        </DialogFooter>
-                                      </DialogContent>
-                                    </Dialog>
+                                      </DialogFooter>
+                                    </DialogContent>
+                                  </Dialog>
                                   </div>
                                 </td>
                               </tr>
