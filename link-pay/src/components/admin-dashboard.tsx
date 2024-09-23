@@ -136,9 +136,17 @@ export default function AdminDashboard() {
   }
 
   const handleLogout = () => {
-    // Implement logout logic here
-    console.log("Logging out...")
+    // Delete all cookies
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+
+    // Redirect to home page
+    window.location.href = '/';
   }
+
 
   const handleDelete = () => {
     if (selectedItem) {
