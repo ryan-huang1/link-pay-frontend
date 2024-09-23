@@ -83,53 +83,76 @@ export default function AdminDashboard() {
   const [newBalance, setNewBalance] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const totalTransactions = transactions.length
-  const averageTransaction = transactions.reduce((sum, tx) => sum + tx.amount, 0) / totalTransactions
-  const numberOfUsers = users.length
-  const numberOfBusinesses = businesses.length
+  const [stats, setStats] = useState({
+    numberOfBusinesses: 0,
+    numberOfUsers: 0,
+    totalTransactions: 0,
+    averageTransaction: 0
+  })
+
 
   useEffect(() => {
-    const checkAdminStatus = async () => {
-      const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-      
-      if (!token) {
-        console.error('No token found');
-        setError('No authentication token found. Redirecting to home...');
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 3000);
-        return;
-      }
-
+    const fetchData = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/user/profile`, {
+        const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+        
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+
+        // Fetch admin status
+        const profileResponse = await fetch(`${BASE_URL}/user/profile`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
 
-        if (!response.ok) {
+        if (!profileResponse.ok) {
           throw new Error('Failed to fetch user profile');
         }
 
-        const userData = await response.json();
+        const userData = await profileResponse.json();
 
         if (!userData.is_admin) {
           throw new Error('User is not an admin');
         }
 
+        // Fetch stats
+        const statsResponse = await fetch(`${BASE_URL}/admin/stats`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!statsResponse.ok) {
+          throw new Error('Failed to fetch admin stats');
+        }
+
+        const statsData = await statsResponse.json();
+
+        setStats({
+          numberOfBusinesses: statsData.business_count,
+          numberOfUsers: statsData.user_count,
+          totalTransactions: statsData.transaction_count,
+          averageTransaction: statsData.average_transaction_size
+        });
+
         setIsLoading(false);
-      } catch (error) {
-        console.error('Authentication error:', error);
-        setError('Authentication failed. Redirecting to home...');
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 3000);
+      } catch (error: unknown) {
+        console.error('Error:', error);
+        setError(error instanceof Error ? error.message : 'An unknown error occurred');
+        setIsLoading(false);
       }
     };
 
-    checkAdminStatus();
+    fetchData();
   }, []);
+
+  const handleError = (error: unknown) => {
+    console.error('Error:', error);
+    setError(error instanceof Error ? error.message : 'An unknown error occurred');
+  };
 
   const formatDate = (date: string | Date) => {
     return format(new Date(date), "MMM d'th', h:mma").toLowerCase()
@@ -244,12 +267,12 @@ export default function AdminDashboard() {
         <main className="flex-1 overflow-auto p-4 w-full">
           <ScrollArea className="h-full w-full">
             <div className="space-y-6">
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                 {[
-                  { title: "Number of Businesses", value: numberOfBusinesses, icon: Building2 },
-                  { title: "Number of Users", value: numberOfUsers, icon: Users },
-                  { title: "Total Transactions", value: totalTransactions, icon: CreditCard },
-                  { title: "Average Transaction", value: `$${averageTransaction.toFixed(2)}`, icon: DollarSign },
+                  { title: "Number of Businesses", value: stats.numberOfBusinesses, icon: Building2 },
+                  { title: "Number of Users", value: stats.numberOfUsers, icon: Users },
+                  { title: "Total Transactions", value: stats.totalTransactions, icon: CreditCard },
+                  { title: "Average Transaction", value: `$${stats.averageTransaction.toFixed(2)}`, icon: DollarSign },
                 ].map((item, index) => (
                   <Card key={index} className="w-full">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
