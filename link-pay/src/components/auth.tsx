@@ -17,7 +17,7 @@ export default function Component() {
   const [password, setPassword] = useState<string>("");
   const [registrationCode, setRegistrationCode] = useState<string>("");
   const [error, setError] = useState<string>("");
-  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.86.139:80';
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.1.10:80';
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 

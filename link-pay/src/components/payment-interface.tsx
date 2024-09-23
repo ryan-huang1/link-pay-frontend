@@ -18,7 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 type TransactionStatus = "success" | "failure" | null;
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.86.139:80';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.1.10:80';
 console.log('BASE_URL:', BASE_URL); // Debug log
 
 interface Transaction {

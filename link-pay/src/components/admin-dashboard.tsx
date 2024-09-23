@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { RefreshCw, CreditCard, DollarSign, Users, Menu, Building2, ClipboardList, LogOut, Trash2, Edit3 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { format } from "date-fns"
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.1.10:80';
 
 // Define types for our data
 type User = {
@@ -79,11 +81,55 @@ export default function AdminDashboard() {
   const [modifyBalanceDialogOpen, setModifyBalanceDialogOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState<User | Business | null>(null)
   const [newBalance, setNewBalance] = useState("")
-
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const totalTransactions = transactions.length
   const averageTransaction = transactions.reduce((sum, tx) => sum + tx.amount, 0) / totalTransactions
   const numberOfUsers = users.length
   const numberOfBusinesses = businesses.length
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+      
+      if (!token) {
+        console.error('No token found');
+        setError('No authentication token found. Redirecting to home...');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 3000);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${BASE_URL}/user/profile`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch user profile');
+        }
+
+        const userData = await response.json();
+
+        if (!userData.is_admin) {
+          throw new Error('User is not an admin');
+        }
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Authentication error:', error);
+        setError('Authentication failed. Redirecting to home...');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 3000);
+      }
+    };
+
+    checkAdminStatus();
+  }, []);
 
   const formatDate = (date: string | Date) => {
     return format(new Date(date), "MMM d'th', h:mma").toLowerCase()
@@ -141,6 +187,14 @@ export default function AdminDashboard() {
       </nav>
     </div>
   )
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden bg-gray-100">
