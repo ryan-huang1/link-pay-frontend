@@ -122,7 +122,6 @@ export default function AdminDashboard() {
 
   const SidebarContent = () => (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold mb-6 text-black">Admin Dashboard</h2>
       <nav className="space-y-2">
         {["users", "businesses", "transactions", "admin-logs"].map((tab) => (
           <button
@@ -159,7 +158,7 @@ export default function AdminDashboard() {
               </SheetHeader>
             </SheetContent>
           </Sheet>
-          <h1 className="text-xl font-bold text-black">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-black">Admin Dashboard</h1>
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline" size="icon" className="rounded-full">
