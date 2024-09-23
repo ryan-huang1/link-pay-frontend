@@ -42,7 +42,6 @@ type AdminLog = {
   id: number;
   action_description: string;
   action_type: string;
-  admin_username: string | null;
   timestamp: string;
 }
 
@@ -65,18 +64,12 @@ const initialTransactions: Transaction[] = [
   { id: 3, from: "bob_smith", to: "alice_j", amount: 30.00, date: new Date("2023-06-03T18:45:00"), type: "transfer" },
 ]
 
-const initialAdminLogs: AdminLog[] = [
-  { id: 48, action_description: "User logged in: admin", action_type: "USER_LOGIN", admin_username: null, timestamp: "2024-09-09T22:29:28" },
-  { id: 49, action_description: "Updated user profile: alice_j", action_type: "PROFILE_UPDATE", admin_username: "admin", timestamp: "2024-09-09T22:35:12" },
-  { id: 50, action_description: "Deleted business: Bob's Burgers", action_type: "BUSINESS_DELETE", admin_username: "admin", timestamp: "2024-09-09T22:40:55" },
-]
-
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("users")
   const [users, setUsers] = useState<User[]>(initialUsers)
   const [businesses, setBusinesses] = useState<Business[]>(initialBusinesses)
   const [transactions] = useState<Transaction[]>(initialTransactions)
-  const [adminLogs] = useState<AdminLog[]>(initialAdminLogs)
+  const [adminLogs, setAdminLogs] = useState<AdminLog[]>([])
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [modifyBalanceDialogOpen, setModifyBalanceDialogOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState<User | Business | null>(null)
@@ -137,6 +130,21 @@ export default function AdminDashboard() {
           totalTransactions: statsData.transaction_count,
           averageTransaction: statsData.average_transaction_size
         });
+
+        // Fetch admin logs
+        const logsResponse = await fetch(`${BASE_URL}/admin/action-logs`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!logsResponse.ok) {
+          throw new Error('Failed to fetch admin logs');
+        }
+
+        const logsData = await logsResponse.json();
+        setAdminLogs(logsData.logs);
 
         setIsLoading(false);
       } catch (error: unknown) {
@@ -524,17 +532,17 @@ export default function AdminDashboard() {
                         <table className="w-full table-fixed">
                           <thead>
                             <tr className="border-b">
-                              <th className="px-4 py-2 text-left w-1/3">Timestamp</th>
-                              <th className="px-4 py-2 text-left w-1/3">Action Description</th>
-                              <th className="px-4 py-2 text-left w-1/3">Admin Username</th>
+                              <th className="px-4 py-3 text-left w-1/3">Timestamp</th>
+                              <th className="px-4 py-3 text-left w-1/3">Action Type</th>
+                              <th className="px-4 py-3 text-left w-1/3">Action Description</th>
                             </tr>
                           </thead>
                           <tbody>
                             {adminLogs.map((log) => (
                               <tr key={log.id} className="border-b">
-                                <td className="px-4 py-2">{formatDate(log.timestamp)}</td>
-                                <td className="px-4 py-2">{log.action_description}</td>
-                                <td className="px-4 py-2">{log.admin_username || '-'}</td>
+                                <td className="px-4 py-4">{formatDate(log.timestamp)}</td>
+                                <td className="px-4 py-4">{log.action_type}</td>
+                                <td className="px-4 py-4">{log.action_description}</td>
                               </tr>
                             ))}
                           </tbody>
