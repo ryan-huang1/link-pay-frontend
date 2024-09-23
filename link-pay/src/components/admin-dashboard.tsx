@@ -22,11 +22,17 @@ type User = {
   balance: number;
 }
 
+// Update the Business type to match the API response
 type Business = {
   id: number;
-  name: string;
-  transactionCount: number;
-  revenue: number;
+  username: string;
+  balance: number;
+  transaction_count: number;
+  created_at: string;
+  updated_at: string;
+  is_admin: boolean;
+  is_business: boolean;
+  is_deleted: boolean;
 }
 
 type Transaction = {
@@ -52,16 +58,10 @@ const initialUsers: User[] = [
   { id: 3, username: "charlie_b", transactionCount: 7, balance: 3000.25 },
 ]
 
-const initialBusinesses: Business[] = [
-  { id: 1, name: "Alice's Accessories", transactionCount: 15, revenue: 5000.00 },
-  { id: 2, name: "Bob's Bakery", transactionCount: 8, revenue: 3500.00 },
-  { id: 3, name: "Charlie's Chocolates", transactionCount: 20, revenue: 7500.00 },
-]
-
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("users")
   const [users, setUsers] = useState<User[]>(initialUsers)
-  const [businesses, setBusinesses] = useState<Business[]>(initialBusinesses)
+  const [businesses, setBusinesses] = useState<Business[]>([])
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [adminLogs, setAdminLogs] = useState<AdminLog[]>([])
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -125,6 +125,21 @@ export default function AdminDashboard() {
           averageTransaction: statsData.average_transaction_size
         });
 
+        // Fetch businesses
+        const businessesResponse = await fetch(`${BASE_URL}/admin/businesses`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!businessesResponse.ok) {
+          throw new Error('Failed to fetch businesses');
+        }
+
+        const businessesData = await businessesResponse.json();
+        setBusinesses(businessesData.businesses);
+
         // Fetch admin logs
         const logsResponse = await fetch(`${BASE_URL}/admin/action-logs`, {
           headers: {
@@ -139,6 +154,7 @@ export default function AdminDashboard() {
 
         const logsData = await logsResponse.json();
         setAdminLogs(logsData.logs);
+
         // Fetch transactions
         const transactionsResponse = await fetch(`${BASE_URL}/admin/transactions/all`, {
           headers: {
@@ -155,15 +171,15 @@ export default function AdminDashboard() {
         setTransactions(transactionsData.transactions);
 
         setIsLoading(false);
-        } catch (error: unknown) {
+      } catch (error: unknown) {
         console.error('Error:', error);
         setError(error instanceof Error ? error.message : 'An unknown error occurred');
         setIsLoading(false);
-        }
-        };
+      }
+    };
 
-        fetchData();
-        }, []);
+    fetchData();
+  }, []);
 
   const handleError = (error: unknown) => {
     console.error('Error:', error);
@@ -414,19 +430,19 @@ export default function AdminDashboard() {
                         <table className="w-full table-fixed">
                           <thead>
                             <tr className="border-b">
-                              <th className="px-4 py-2 text-left w-1/4">Business Name</th>
-                              <th className="px-4 py-2 text-left w-1/4">Transactions</th>
-                              <th className="px-4 py-2 text-left w-1/4">Revenue</th>
-                              <th className="px-4 py-2 text-left w-1/4">Actions</th>
+                              <th className="px-4 py-3 text-left w-1/6">Business Name</th>
+                              <th className="px-4 py-3 text-left w-1/6">Transactions</th>
+                              <th className="px-4 py-3 text-left w-1/6">Balance</th>
+                              <th className="px-4 py-3 text-left w-2/6">Actions</th>
                             </tr>
                           </thead>
                           <tbody>
                             {businesses.map((business) => (
                               <tr key={business.id} className="border-b">
-                                <td className="px-4 py-2">{business.name}</td>
-                                <td className="px-4 py-2">{business.transactionCount}</td>
-                                <td className="px-4 py-2">${business.revenue.toFixed(2)}</td>
-                                <td className="px-4 py-2">
+                                <td className="px-4 py-4">{business.username}</td>
+                                <td className="px-4 py-4">{business.transaction_count}</td>
+                                <td className="px-4 py-4">${business.balance.toFixed(2)}</td>
+                                <td className="px-4 py-4">
                                   <div className="flex space-x-2">
                                     <Dialog open={modifyBalanceDialogOpen} onOpenChange={setModifyBalanceDialogOpen}>
                                       <DialogTrigger asChild>
@@ -437,18 +453,18 @@ export default function AdminDashboard() {
                                       </DialogTrigger>
                                       <DialogContent>
                                         <DialogHeader>
-                                          <DialogTitle>Modify Business Revenue</DialogTitle>
+                                          <DialogTitle>Modify Business Balance</DialogTitle>
                                           <DialogDescription>
-                                            Enter the new revenue for {selectedItem && 'name' in selectedItem ? selectedItem.name : ''}
+                                            Enter the new balance for {selectedItem && 'username' in selectedItem ? selectedItem.username : ''}
                                           </DialogDescription>
                                         </DialogHeader>
                                         <div className="grid gap-4 py-4">
                                           <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="revenue" className="text-right">
-                                              Revenue
+                                            <Label htmlFor="balance" className="text-right">
+                                              Balance
                                             </Label>
                                             <Input
-                                              id="revenue"
+                                              id="balance"
                                               value={newBalance}
                                               onChange={(e) => setNewBalance(e.target.value)}
                                               className="col-span-3"
@@ -476,7 +492,7 @@ export default function AdminDashboard() {
                                         <DialogHeader>
                                           <DialogTitle>Confirm Deletion</DialogTitle>
                                           <DialogDescription>
-                                            Are you sure you want to delete the business {selectedItem && 'name' in selectedItem ? selectedItem.name : ''}? This action cannot be undone.
+                                            Are you sure you want to delete the business {selectedItem && 'username' in selectedItem ? selectedItem.username : ''}? This action cannot be undone.
                                           </DialogDescription>
                                         </DialogHeader>
                                         <DialogFooter>
